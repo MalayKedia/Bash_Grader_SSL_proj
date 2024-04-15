@@ -195,20 +195,24 @@ if [ "$1" = 'total' ]; then
 fi
 
 if [ "$1" = 'update' ]; then
-    echo "Roll No. of student to be updated: "
-    read roll_no
-    echo "Enter exam name: "
-    read exam_name
-    echo "Enter new marks: "
-    read new_marks
     if [ -f "main.csv" ]; then
-        echo "yo"
+        echo "Enter the roll no. of the student:"
+        read roll_no
+        if [ -n $(cut -d ',' -f 1 main.csv | grep $roll_no) ]; then
+            echo "Invalid Roll Number, please try again"
+        else
+            echo "The name of the student with roll no. $roll_no is $(awk '$1 == "$roll_no" {print $2}' main.csv)"
+            echo "Enter the name of exam to be updated"
+            read exam_name
+            if [ -f "$exam_name.csv" ]; then
+                echo "yo"
+            fi
+        fi
     else
-        echo "main.csv does not exist"
-        echo "Run the command 'bash submission.sh combine' first"
-        exit 1  
+        echo 'Run "bash submission.sh combine" first'
     fi
 fi
+
 
 # If the first argument is 'clean'
 if [ "$1" = 'clean' ]; then
@@ -337,6 +341,7 @@ if [ "$1" = 'git_checkout' ]; then
         exit 1
     fi
 fi
+
 
 if [ "$1" = 'help' ]; then
     echo "Usage: bash submission.sh <command> <any other extra arguments(if needed)>"
