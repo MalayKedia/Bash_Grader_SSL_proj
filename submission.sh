@@ -1,5 +1,15 @@
 #!/bin/bash
 
+generate_hash() {
+    local random_number=""
+
+    for ((i=0; i<16; i++)); do
+        local random_digit=$(( RANDOM % 10 ))
+        random_number="${random_number}${random_digit}"
+    done
+    echo "$random_number"
+}
+
 # Exit if there is no command 0
 if [ $# -eq 0 ]; then
     echo 'Usage: bash submission.sh <command> <any other extra arguments(if needed)>'
@@ -125,6 +135,7 @@ if [ "$1" = 'total' ]; then
         exit 1  
     fi
 fi
+
 if [ "$1" = 'update' ]; then
     echo "Roll No. of student to be updated: "
     read roll_no
@@ -146,7 +157,73 @@ if [ "$1" = 'clean' ]; then
     rm main.csv
 fi
 
-if [ "$1" != 'combine' ] && [ "$1" != 'upload' ] && [ "$1" != 'total' ] && [ "$1" != 'clean' ]; then
-    echo "Invalid command"
-    exit 1
+if [ "$1" = 'git_init' ]; then
+    remote_repo="$2"
+    if [ -d "./.my_git" ]; then
+        path_to_existing_remote=$(realpath $(readlink -f ./.my_git))
+        remote_repo_absolute=$(realpath $remote_repo)
+        if [ "$path_to__existing_remote" != "$remote_repo_absolute" ]; then
+            if [ -d $path_to_existing_remote ]; then
+                echo "Remote repository already exists at $path_to_existing_remote"
+                exit 1
+            else 
+                mkdir -p "$remote_repo"
+                ln -s $remote_repo ./.my_git
+                echo "Initialized remote repository at $remote_repo"
+            fi
+        else 
+            if [ -d $path_to_existing_remote ]; then
+                echo "Remote repository already exists at $path_to_existing_remote"
+                exit 1
+            else 
+                mkdir -p "$remote_repo"
+                ln -s $remote_repo ./.my_git
+                echo "Initialized remote repository at $remote_repo"
+            fi
+        fi
+    else
+        mkdir -p "$remote_repo"
+        ln -s $remote_repo ./.my_git
+        echo "Initialized remote repository at $remote_repo"
+    fi
 fi
+
+if [ "$1" = 'git_commit' ]; then
+    hash_value=$(generate_hash)
+    if [ -d "./.my_git" ]; then
+        path_to_remote_repo=$(readlink -f ./.my_git)
+        if [ -d $path_to_remote_repo ]; then
+            message=""
+            if [ "$2" = '-m' ]; then
+                message=$3
+            else
+                echo "Enter the commit message: "
+                read message
+            fi
+            echo "$hash_value : $message" >> $path_to_remote_repo/.git_log.txt
+            
+            mkdir $path_to_remote_repo/$hash_value
+            cp *.csv $path_to_remote_repo/$hash_value
+            echo "All csv files committed to remote repository"
+            
+        fi
+    else
+        echo "Remote repository does not exist"
+        echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+        exit 1
+    fi
+fi
+
+if [ "$1" = 'help' ]; then
+    echo "Usage: bash submission.sh <command> <any other extra arguments(if needed)>"
+    echo "Commands:"
+    echo "combine: Combine all csv files in the directory"
+    echo "upload: Copy the file to the given directory"
+    echo "total: Calculate the total marks of each student"
+    echo "clean: Remove the main.csv file"
+fi
+
+# if [ "$1" != 'combine' ] && [ "$1" != 'upload' ] && [ "$1" != 'total' ] && [ "$1" != 'clean' ] ; then
+#     echo "Invalid command"
+#     exit 1
+# fi
