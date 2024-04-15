@@ -43,24 +43,14 @@ if [ "$1" = 'combine' ]; then
         echo "" >> main.csv
         # put the names and roll numbers
         for file in "${@:2}"; do
-        line_number=0
-            while read -r line || [ -n "$line" ]; do
-                ((line_number++))
-                if [ $line_number -eq 1 ]; then
-                    continue  # Skip processing the header
-                fi
-               
-                roll_no="$(echo "$line" | cut -d ',' -f 1)"
-               
-                #check if roll no is already in the file
-                if grep -q "$roll_no" main.csv; then
-                    continue
-                fi
-                echo "$(echo "$line" | cut -d ',' -f 1,2)"
-            done < "$file"
+            awk -F, 'NR>1 {print $1","$2}' "$file" >> main.csv   
         done >> main.csv
-       
-       
+        tail -n +2 main.csv | sort -k1 | uniq > temp.csv
+        header=$(head -n 1 main.csv)
+        echo $header > main.csv
+        cat temp.csv >> main.csv 
+        rm temp.csv
+
         # put the marks
         for file in "${@:2}"; do
             line_number_in_main=0
@@ -83,6 +73,7 @@ if [ "$1" = 'combine' ]; then
                
             done < main.csv
         done >> main.csv
+
         if [ "$total_run_before" = true ]; then
             bash submission.sh total
         fi
