@@ -1,0 +1,3 @@
+Implementing git diff, branch, merge.
+Making fancy report card for student
+Graphs and stats
