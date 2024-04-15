@@ -10,6 +10,37 @@ generate_hash() {
     echo "$random_number"
 }
 
+find_folder_by_hash() {
+    remote_repo="$1"
+    hash="$2"
+    count=$(find $remote_repo -maxdepth 1 -type d -name "$hash*" | wc -l)
+    
+    if [ $count -eq 1 ]; then
+        echo $(find $remote_repo -maxdepth 1 -type d -name "$hash*")
+        return 0
+    elif [ $count -gt 1 ]; then
+        return 1
+    else
+        return 2
+    fi
+}
+
+find_folder_my_message() {
+    remote_repo="$1"
+    message="$2"
+    count_of_matching_lines=$(grep -c "^[0-9]{16} : $message" $path_to_remote_repo/.git_log.txt)
+
+    if [ $count_of_matching_lines -eq 1 ]; then
+        hash=$(grep "^[0-9]{16} : $message" $path_to_remote_repo/.git_log.txt | cut -d ':' -f 1)
+        echo $(find_folder_by_hash $remote_repo $hash)
+        return 0
+    elif [ $count_of_matching_lines -gt 1 ]; then
+        return 1
+    else
+        return 2
+    fi
+}
+
 # Exit if there is no command 0
 if [ $# -eq 0 ]; then
     echo 'Usage: bash submission.sh <command> <any other extra arguments(if needed)>'
@@ -213,6 +244,67 @@ if [ "$1" = 'git_commit' ]; then
         exit 1
     fi
 fi
+
+if [ "$1" = 'git_log' ]; then
+    if [ -d "./.my_git" ]; then
+        path_to_remote_repo=$(readlink -f ./.my_git)
+        if [ -d $path_to_remote_repo ]; then
+            cat $path_to_remote_repo/.git_log.txt
+        fi
+    else
+        echo "Remote repository does not exist"
+        echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+        exit 1
+    fi
+fi
+
+if [ "$1" = 'git_checkout' ]; then
+    if [ -d "./.my_git" ]; then
+        path_to_remote_repo=$(readlink -f ./.my_git)
+        if [ -d $path_to_remote_repo ]; then
+            if [ "$2" = '-m' ]; then
+                message=$3
+                path_of_commit=$(find_folder_my_message $path_to_remote_repo $message)
+                return_code=$?
+                if [ $return_code -eq 0 ]; then
+                    rm *.csv
+                    cp $path_of_commit/*.csv .
+                    echo "Commit with message '$message' checked out"
+                elif [ $return_code -eq 1 ]; then
+                    echo "Multiple commits found with message '$message'"
+                    echo "Please use hash value"
+                    exit 1
+                else
+                    echo "Commit with message '$message' not found"
+                    exit 1
+                fi
+
+            else
+                hash_value=$2
+                path_of_commit=$(find_folder_by_hash $path_to_remote_repo $hash_value)
+                return_code=$?
+                if [ $return_code -eq 0 ]; then
+                    rm *.csv
+                    cp $path_of_commit/*.csv .
+                    echo "Commit $hash_value checked out"
+                elif [ $return_code -eq 1 ]; then
+                    echo "Multiple commits found with hash $hash_value"
+                    echo "Please use the full hash value"
+                    exit 1
+                else
+                    echo "Commit with hash $hash_value not found"
+                    exit 1
+                fi
+            fi      
+        fi
+    else
+        echo "Remote repository does not exist"
+        echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+        exit 1
+    fi
+fi
+
+
 
 if [ "$1" = 'help' ]; then
     echo "Usage: bash submission.sh <command> <any other extra arguments(if needed)>"
