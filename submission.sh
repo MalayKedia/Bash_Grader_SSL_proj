@@ -147,7 +147,7 @@ find_changed_files_between_commits() {
 }
 
 check_if_git_init_run_before() {
-    if [ -d "./.my_git" ]; then
+    if [ -h "./.my_git" ]; then
         path_to_remote_repo=$(readlink -f ./.my_git)
         if [[ ! -d $path_to_remote_repo ]]; then
             echo "Remote repository does not exist"
@@ -253,13 +253,13 @@ elif [ "$1" = 'clean' ]; then
     To initialize a remote repository: Usage: bash submission.sh git_init <path_to_remote_repo>
 COMMENT
 elif [ "$1" = 'git_init' ]; then
-    if [ $# -eq 1 ]; then
-        echo 'Specify the path to the remote repository'
-        exit 1
-    fi
-
     remote_repo="$2"
-    if [ -d "./.my_git" ]; then
+    if [ -h "./.my_git" ]; then
+        if [ $# -eq 1 ]; then
+            echo 'Specify the path to the remote repository'
+            exit 1
+        fi
+
         path_to_existing_remote=$(realpath $(readlink -f ./.my_git))
         remote_repo_absolute=$(realpath $remote_repo)
         if [ "$path_to_existing_remote" != "$remote_repo_absolute" ]; then
@@ -268,7 +268,7 @@ elif [ "$1" = 'git_init' ]; then
                 exit 1
             else 
                 mkdir -p "$remote_repo"
-                rm -r ./.my_git
+                rm ./.my_git
                 ln -s $remote_repo ./.my_git
                 echo "Initialized remote repository at $remote_repo"
             fi
@@ -278,7 +278,7 @@ elif [ "$1" = 'git_init' ]; then
                 exit 1
             else 
                 mkdir -p "$remote_repo"
-                rm -r ./.my_git
+                rm ./.my_git
                 ln -s $remote_repo ./.my_git
                 echo "Initialized remote repository at $remote_repo"
             fi
