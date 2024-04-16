@@ -36,7 +36,7 @@ combine() {
     done
     echo "" >> main.csv
     # put the names and roll numbers
-    for file in "${@:2}"; do
+    for file in "$@"; do
         awk -F, 'NR>1 {print $1","$2}' "$file" >> main.csv   
     done >> main.csv
     tail -n +2 main.csv | sort -k1 | uniq > temp.csv
