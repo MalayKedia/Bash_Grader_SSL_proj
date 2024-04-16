@@ -1,5 +1,19 @@
 #!/bin/bash
 
+check_if_total_run_before() {
+    if [ -f "main.csv" ]; then
+        total_exists=$(head -n 1 main.csv | awk -F',' '{print $NF}' | grep "^total$")
+        if [ -n "$total_exists" ]; then
+            total_run_before=true
+        else
+            total_run_before=false
+        fi
+    else
+        total_run_before=false
+    fi
+    echo "$total_run_before"
+}
+
 combine() {
     touch main.csv
     echo -n "Roll_Number,Name" > main.csv
@@ -132,19 +146,12 @@ fi
 
 # If the first argument is 'combine'
 : '
-    Combine all csv files in the directory
     To combine all csv files in current directory: Usage: bash submission.sh combine
-    To combine all csv files in a given directory: Usage: bash submission.sh combine <directory>
-    To combine given csv files (more than 1):      Usage: bash submission.sh combine <file1.csv> <file2.csv> <file3.csv> ...
+    To combine given csv files:                    Usage: bash submission.sh combine <file1.csv> <file2.csv> <file3.csv> ...
 '
 if [ "$1" = 'combine' ]; then
-    total_run_before=false
-    if [ -f "main.csv" ]; then
-        total_exists=$(head -n 1 main.csv | awk -F',' '{print $NF}' | grep "^total$")
-        if [ -n "$total_exists" ]; then
-            total_run_before=true
-        fi
-    fi
+    total_run_before=$(check_if_total_run_before)
+
     if [ $# -gt 1 ]; then
         combine ${@:2}
     else
@@ -160,24 +167,20 @@ fi
 
 # If the first argument is 'upload'
 : '
-    `upload` command is used to copy the file to the given directory
     To copy the file to the current directory: Usage: bash submission.sh upload <file>
 '
 if [ "$1" = 'upload' ]; then
-    if [ $# -eq 3 ]; then
-        if [ -d "$3" ]; then
-            cp $2 $3
-        else
-            echo "{$3} is not a directory"
-            exit 1
-        fi
-   
-    elif [ $# -eq 2 ]; then
-        cp $2 .
+    if [ $# -lt 2 ]; then
+        echo 'Specify the file to be uploaded'
+    else
+        cp ${@:2} .
     fi
 fi
 
 # If the first argument is 'total'
+: '
+    To calculate the total marks of each student: Usage: bash submission.sh total
+'
 if [ "$1" = 'total' ]; then
     if [ -f "main.csv" ]; then
         total_exists=$(head -n 1 main.csv | grep "total")
