@@ -146,6 +146,21 @@ find_changed_files_between_commits() {
     done
 }
 
+check_if_git_init_run_before() {
+    if [ -d "./.my_git" ]; then
+        path_to_remote_repo=$(readlink -f ./.my_git)
+        if [[ ! -d $path_to_remote_repo ]]; then
+            echo "Remote repository does not exist"
+            echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+            exit 1
+        fi
+    else
+        echo "Remote repository does not exist"
+        echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+        exit 1
+    fi
+}
+
 # Exit if there is no command 0
 if [ $# -eq 0 ]; then
     echo 'Usage: bash submission.sh <command> <any other extra arguments(if needed)>'
@@ -238,16 +253,22 @@ elif [ "$1" = 'clean' ]; then
     To initialize a remote repository: Usage: bash submission.sh git_init <path_to_remote_repo>
 COMMENT
 elif [ "$1" = 'git_init' ]; then
+    if [ $# -eq 1 ]; then
+        echo 'Specify the path to the remote repository'
+        exit 1
+    fi
+
     remote_repo="$2"
     if [ -d "./.my_git" ]; then
         path_to_existing_remote=$(realpath $(readlink -f ./.my_git))
         remote_repo_absolute=$(realpath $remote_repo)
-        if [ "$path_to__existing_remote" != "$remote_repo_absolute" ]; then
+        if [ "$path_to_existing_remote" != "$remote_repo_absolute" ]; then
             if [ -d $path_to_existing_remote ]; then
                 echo "Remote repository already exists at $path_to_existing_remote"
                 exit 1
             else 
                 mkdir -p "$remote_repo"
+                rm -r ./.my_git
                 ln -s $remote_repo ./.my_git
                 echo "Initialized remote repository at $remote_repo"
             fi
@@ -257,6 +278,7 @@ elif [ "$1" = 'git_init' ]; then
                 exit 1
             else 
                 mkdir -p "$remote_repo"
+                rm -r ./.my_git
                 ln -s $remote_repo ./.my_git
                 echo "Initialized remote repository at $remote_repo"
             fi
@@ -273,32 +295,30 @@ elif [ "$1" = 'git_init' ]; then
     To commit the changes to the remote repository with a message: Usage: bash submission.sh git_commit -m <message>
 COMMENT
 elif [ "$1" = 'git_commit' ]; then
-    hash_value=$(generate_hash)
-    if [ -d "./.my_git" ]; then
-        path_to_remote_repo=$(readlink -f ./.my_git)
-        if [ -d $path_to_remote_repo ]; then
-            message=""
-            if [ "$2" = '-m' ]; then
-                message=$3
-            else
-                echo "Enter the commit message: "
-                read message
-            fi
-            echo "$hash_value : $message" >> $path_to_remote_repo/.git_log.txt
-            
-            mkdir $path_to_remote_repo/$hash_value
-            cp *.csv $path_to_remote_repo/$hash_value
-            echo "All csv files committed to remote repository"
-
-            second_last_hash=$(tail -n 2 $path_to_remote_repo/.git_log.txt | cut -d ':' -f 1)
-            if [ -n "$second_last_hash" ]; then
-                find_changed_files_between_commits $second_last_hash $hash_value      
-            fi
-        fi
-    else
-        echo "Remote repository does not exist"
-        echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+    check_if_git_init_run_before
+    if [ $? -eq 1 ]; then
         exit 1
+    fi
+    
+    hash_value=$(generate_hash)
+    path_to_remote_repo=$(readlink -f ./.my_git)
+    message=""
+
+    if [ "$2" = '-m' ]; then
+        message=$3
+    else
+        echo "Enter the commit message: "
+        read message
+    fi
+    echo "$hash_value : $message" >> $path_to_remote_repo/.git_log.txt
+    
+    mkdir $path_to_remote_repo/$hash_value
+    cp *.csv $path_to_remote_repo/$hash_value
+    echo "All csv files committed to remote repository"
+
+    second_last_hash=$(tail -n 2 $path_to_remote_repo/.git_log.txt | cut -d ':' -f 1)
+    if [ -n "$second_last_hash" ]; then
+        find_changed_files_between_commits $second_last_hash $hash_value      
     fi
 
 # If the first argument is 'git_log'
@@ -306,17 +326,14 @@ elif [ "$1" = 'git_commit' ]; then
     To view the log of the remote repository: Usage: bash submission.sh git_log
 COMMENT
 elif [ "$1" = 'git_log' ]; then
-    if [ -d "./.my_git" ]; then
-        path_to_remote_repo=$(readlink -f ./.my_git)
-        if [ -d $path_to_remote_repo ]; then
-            cat $path_to_remote_repo/.git_log.txt
-        fi
-    else
-        echo "Remote repository does not exist"
-        echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+    check_if_git_init_run_before
+    if [ $? -eq 1 ]; then
         exit 1
     fi
 
+    path_to_remote_repo=$(readlink -f ./.my_git)
+    cat $path_to_remote_repo/.git_log.txt
+    
 # If the first argument is 'git_checkout'
 << COMMENT
     To checkout the latest commit: Usage: bash submission.sh git_checkout HEAD
@@ -324,53 +341,51 @@ elif [ "$1" = 'git_log' ]; then
     To checkout a commit by message: Usage: bash submission.sh git_checkout -m <message>
 COMMENT
 elif [ "$1" = 'git_checkout' ]; then
-    if [ -d "./.my_git" ]; then
-        path_to_remote_repo=$(readlink -f ./.my_git)
-        if [ -d $path_to_remote_repo ]; then
-            if [ "$2" = 'HEAD' ]; then
-                latest_hash=$(tail -n 1 $path_to_remote_repo/.git_log.txt | cut -d ':' -f 1)
-                bash submission.sh git_checkout $latest_hash
-            elif [ "$2" = '-m' ]; then
-                message=$3
-                path_of_commit=$(find_folder_by_message "$path_to_remote_repo" "$message")
-                return_code=$?
-                if [ $return_code -eq 0 ]; then
-                    rm *.csv
-                    cp $path_of_commit/*.csv .
-                    echo "Commit with message '$message' checked out"
-                elif [ $return_code -eq 1 ]; then
-                    echo "Multiple commits found with message '$message'"
-                    echo "Please use hash value"
-                    exit 1
-                else
-                    echo "Commit with message '$message' not found"
-                    exit 1
-                fi
-
-            else
-                hash_value=$2
-                path_of_commit=$(find_folder_by_hash $path_to_remote_repo $hash_value)
-                return_code=$?
-                if [ $return_code -eq 0 ]; then
-                    rm *.csv
-                    cp $path_of_commit/*.csv .
-                    echo "Commit $hash_value checked out"
-                elif [ $return_code -eq 1 ]; then
-                    echo "Multiple commits found with hash $hash_value"
-                    echo "Please use the full hash value"
-                    exit 1
-                else
-                    echo "Commit with hash $hash_value not found"
-                    exit 1
-                fi
-            fi      
-        fi
-    else
-        echo "Remote repository does not exist"
-        echo "Run the command 'bash submission.sh git_init <path_to_remote_repo>' first"
+    check_if_git_init_run_before
+    if [ $? -eq 1 ]; then
         exit 1
     fi
 
+    path_to_remote_repo=$(readlink -f ./.my_git)
+    
+    if [ "$2" = 'HEAD' ]; then
+        latest_hash=$(tail -n 1 $path_to_remote_repo/.git_log.txt | cut -d ':' -f 1)
+        bash submission.sh git_checkout $latest_hash
+    
+    elif [ "$2" = '-m' ]; then
+        message=$3
+        path_of_commit=$(find_folder_by_message "$path_to_remote_repo" "$message")
+        return_code=$?
+        if [ $return_code -eq 0 ]; then
+            rm *.csv
+            cp $path_of_commit/*.csv .
+            echo "Commit with message '$message' checked out"
+        elif [ $return_code -eq 1 ]; then
+            echo "Multiple commits found with message '$message'"
+            echo "Please use hash value"
+            exit 1
+        else
+            echo "Commit with message '$message' not found"
+            exit 1
+        fi
+
+    else
+        hash_value=$2
+        path_of_commit=$(find_folder_by_hash $path_to_remote_repo $hash_value)
+        return_code=$?
+        if [ $return_code -eq 0 ]; then
+            rm *.csv
+            cp $path_of_commit/*.csv .
+            echo "Commit $hash_value checked out"
+        elif [ $return_code -eq 1 ]; then
+            echo "Multiple commits found with hash $hash_value"
+            echo "Please use the full hash value"
+            exit 1
+        else
+            echo "Commit with hash $hash_value not found"
+            exit 1
+        fi
+    fi      
 
 else
     echo "Invalid command"
