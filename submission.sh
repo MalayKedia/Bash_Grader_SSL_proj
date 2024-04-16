@@ -70,6 +70,14 @@ combine() {
 
 }
 
+total() {
+    echo "total" > total.csv
+    awk -F, 'NR>1 {for(i=3;i<=NF;i++) { if ($i == "a") $i = 0; s+=$i;} print s; s=0;}' main.csv >> total.csv
+    paste -d',' main.csv total.csv > temp1212.csv
+    mv temp1212.csv main.csv
+    rm total.csv
+}
+
 generate_hash() {
     local random_number=""
 
@@ -145,10 +153,10 @@ if [ $# -eq 0 ]; then
 fi
 
 # If the first argument is 'combine'
-: '
+<< COMMENT
     To combine all csv files in current directory: Usage: bash submission.sh combine
     To combine given csv files:                    Usage: bash submission.sh combine <file1.csv> <file2.csv> <file3.csv> ...
-'
+COMMENT
 if [ "$1" = 'combine' ]; then
     total_run_before=$(check_if_total_run_before)
 
@@ -161,14 +169,14 @@ if [ "$1" = 'combine' ]; then
     fi
 
     if [ "$total_run_before" = true ]; then
-        bash submission.sh total
+        total
     fi
 fi
 
 # If the first argument is 'upload'
-: '
+<< COMMENT
     To copy the file to the current directory: Usage: bash submission.sh upload <file>
-'
+COMMENT
 if [ "$1" = 'upload' ]; then
     if [ $# -lt 2 ]; then
         echo 'Specify the file to be uploaded'
@@ -178,20 +186,16 @@ if [ "$1" = 'upload' ]; then
 fi
 
 # If the first argument is 'total'
-: '
+<< COMMENT
     To calculate the total marks of each student: Usage: bash submission.sh total
-'
+COMMENT
 if [ "$1" = 'total' ]; then
+    total_run_before=$(check_if_total_run_before)
     if [ -f "main.csv" ]; then
-        total_exists=$(head -n 1 main.csv | grep "total")
-        if [ -n "$total_exists" ]; then
+        if [ "$total_run_before" = true ]; then
             echo "Total has already been run"
         else
-            echo "total" > total.csv
-            awk -F, 'NR>1 {for(i=3;i<=NF;i++) { if ($i == "a") $i = 0; s+=$i;} print s; s=0;}' main.csv >> total.csv
-            paste -d',' main.csv total.csv > temp.csv
-            mv temp.csv main.csv
-            rm total.csv
+            total
         fi
     else
         echo "main.csv does not exist"
@@ -200,6 +204,10 @@ if [ "$1" = 'total' ]; then
     fi
 fi
 
+# If the first argument is 'update'
+<< COMMENT
+    To update the marks of a student: Usage: bash submission.sh update
+COMMENT
 if [ "$1" = 'update' ]; then
     if [ -f "main.csv" ]; then
         echo "Enter the roll no. of the student:"
@@ -221,10 +229,17 @@ fi
 
 
 # If the first argument is 'clean'
+<< COMMENT
+    To remove the main.csv file: Usage: bash submission.sh clean
+COMMENT
 if [ "$1" = 'clean' ]; then
     rm main.csv
 fi
 
+# If the first argument is 'git_init'
+<< COMMENT
+    To initialize a remote repository: Usage: bash submission.sh git_init <path_to_remote_repo>
+COMMENT
 if [ "$1" = 'git_init' ]; then
     remote_repo="$2"
     if [ -d "./.my_git" ]; then
@@ -256,6 +271,11 @@ if [ "$1" = 'git_init' ]; then
     fi
 fi
 
+# If the first argument is 'git_commit'
+<< COMMENT
+    To commit the changes to the remote repository: Usage: bash submission.sh git_commit
+    To commit the changes to the remote repository with a message: Usage: bash submission.sh git_commit -m <message>
+COMMENT
 if [ "$1" = 'git_commit' ]; then
     hash_value=$(generate_hash)
     if [ -d "./.my_git" ]; then
@@ -286,6 +306,10 @@ if [ "$1" = 'git_commit' ]; then
     fi
 fi
 
+# If the first argument is 'git_log'
+<< COMMENT
+    To view the log of the remote repository: Usage: bash submission.sh git_log
+COMMENT
 if [ "$1" = 'git_log' ]; then
     if [ -d "./.my_git" ]; then
         path_to_remote_repo=$(readlink -f ./.my_git)
@@ -299,6 +323,12 @@ if [ "$1" = 'git_log' ]; then
     fi
 fi
 
+# If the first argument is 'git_checkout'
+<< COMMENT
+    To checkout the latest commit: Usage: bash submission.sh git_checkout HEAD
+    To checkout a commit by hash: Usage: bash submission.sh git_checkout <hash>
+    To checkout a commit by message: Usage: bash submission.sh git_checkout -m <message>
+COMMENT
 if [ "$1" = 'git_checkout' ]; then
     if [ -d "./.my_git" ]; then
         path_to_remote_repo=$(readlink -f ./.my_git)
@@ -348,15 +378,6 @@ if [ "$1" = 'git_checkout' ]; then
     fi
 fi
 
-
-if [ "$1" = 'help' ]; then
-    echo "Usage: bash submission.sh <command> <any other extra arguments(if needed)>"
-    echo "Commands:"
-    echo "combine: Combine all csv files in the directory"
-    echo "upload: Copy the file to the given directory"
-    echo "total: Calculate the total marks of each student"
-    echo "clean: Remove the main.csv file"
-fi
 
 # if [ "$1" != 'combine' ] && [ "$1" != 'upload' ] && [ "$1" != 'total' ] && [ "$1" != 'clean' ] ; then
 #     echo "Invalid command"
