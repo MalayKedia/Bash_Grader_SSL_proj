@@ -1,3 +1,11 @@
 Implementing git diff, branch, merge.
 Making fancy report card for student
 Graphs and stats
+Give weigtage and use relative marks
+Percentage
+
+Assign grades
+Change combine to conider main existing
+Git ignore and status
+
+Search name
