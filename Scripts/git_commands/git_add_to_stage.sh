@@ -45,6 +45,13 @@ else
         fi
     done
 
+    for file in "$@"; do
+        if [ -n "$(grep "^$file$" $path_to_remote_repo/git_files_deleted_from_stage.txt)" ]; then
+            sed -i "/^$file$/d" $path_to_remote_repo/git_files_deleted_from_stage.txt
+            exit 1
+        fi
+    done
+    
     cp "$@" $path_to_remote_repo/stage
     echo "File(s) $@ added to staging area"
 fi
