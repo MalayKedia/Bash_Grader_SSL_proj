@@ -1,5 +1,16 @@
 #!/bin/bash
 
+check_dir_contents_count() {
+    local dir="$1"
+    local number="$2"
+    local file_count=$(find "$dir" -mindepth 1 -maxdepth 1 | wc -l)
+    if [ "$file_count" -eq "$2" ]; then 
+        echo "true"
+    else 
+        echo "false"
+    fi
+}
+
 check_if_git_init_run_before() {
    if [ -h "./.my_git" ]; then
        path_to_remote_repo=$(readlink -f ./.my_git)
@@ -88,4 +99,12 @@ find_changed_files_between_commits() {
 clear_stage() {
     remote_repo=$(readlink -f ./.my_git)
     rm -rf $remote_repo/stage/*
+    echo > "$remote_repo/git_files_deleted_from_stage.txt"
+}
+
+return_hash_HEADn() {
+    path_to_remote_repo="$1"
+    number=$(($2+1))
+    hash=$(tail -n $number $path_to_remote_repo/git_log.txt | head -n 1 | cut -d ':' -f 1 |  sed 's/[ \t]*$//')
+    echo $hash
 }

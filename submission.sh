@@ -55,9 +55,13 @@ elif [ "$1" = 'git_init' ]; then
     shift
     bash Scripts/git_commands/git_init.sh "$@"
 
-elif [ "$1" = 'git_add' ]; then
+elif [ "$1" = 'git_add_to_stage' ]; then
     shift
-    bash Scripts/git_commands/git_add.sh "$@"
+    bash Scripts/git_commands/git_add_to_stage.sh "$@"
+
+elif [ "$1" = 'git_remove_from_stage' ]; then
+    shift
+    bash Scripts/git_commands/git_remove_from_stage.sh "$@"
 
 elif [ "$1" = 'git_status' ]; then
     shift
@@ -71,7 +75,6 @@ COMMENT
 elif [ "$1" = 'git_commit' ]; then
     shift
     bash Scripts/git_commands/git_commit.sh "$@"
-
 
 # If the first argument is 'git_log'
 << COMMENT

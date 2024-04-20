@@ -4,6 +4,13 @@ source Scripts/git_commands/additional_functions.sh
 start_my_git() {
     remote_repo="$1"
     mkdir -p "$remote_repo" "$remote_repo/stage" "$remote_repo/commits"
+    if [ "$(check_dir_contents_count $remote_repo 2)" = "false" ] || [ "$(check_dir_contents_count $remote_repo/stage 0)" = "false" ] || [ "$(check_dir_contents_count $remote_repo/commits 0)" = "false" ]; then 
+        echo "Directory $remote_repo already exists and is not fit to be remote repository"
+        exit 1
+    fi
+
+    touch $remote_repo/git_log.txt
+    touch $remote_repo/git_files_deleted_from_stage.txt
     ln -s $remote_repo ./.my_git
     echo "Initialized remote repository at $remote_repo"
 }

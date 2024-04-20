@@ -8,7 +8,8 @@ fi
 
 path_to_remote_repo=$(readlink -f ./.my_git)
 
-if [ -z "$(find "$path_to_remote_repo/stage" -mindepth 1)" ]; then
+file_list="$(ls -1 "$path_to_remote_repo/stage/")$(cat "$path_to_remote_repo/git_files_deleted_from_stage.txt")"
+if [ -z "$file_list" ]; then
     echo "No files to commit"
     exit 1
 fi
@@ -29,10 +30,23 @@ fi
 echo "$hash_value : $current_datetime : $message" >> $path_to_remote_repo/git_log.txt
 
 mkdir $path_to_remote_repo/commits/$hash_value
-cp $path_to_remote_repo/stage/* $path_to_remote_repo/commits/$hash_value
-echo "Files $(ls -1 "$path_to_remote_repo/stage/" | tr '\n' ' ')committed to remote repository"
-second_last_hash=$(tail -n 2 $path_to_remote_repo/git_log.txt | head -n 1 | cut -d ':' -f 1 | sed 's/^[ \t]*//;s/[ \t]*$//')
-if [ -n "$second_last_hash" ]; then
+
+if [ $(wc -l < "$path_to_remote_repo/git_log.txt") -gt 1 ]; then
+    latest_hash=$(return_hash_HEADn $path_to_remote_repo 1)
+    path_of_commit=$(find_folder_by_hash $path_to_remote_repo $latest_hash)
+    for file in $(ls $path_of_commit); do
+        if [ -z $(grep "^$file$" $path_to_remote_repo/git_files_deleted_from_stage.txt) ]; then
+            cp $path_of_commit/$file $path_to_remote_repo/commits/$hash_value/.
+        fi
+    done
+fi
+
+cp $path_to_remote_repo/stage/* $path_to_remote_repo/commits/$hash_value 2>/dev/null
+
+file_list="$(ls -1 "$path_to_remote_repo/stage/") $(cat "$path_to_remote_repo/git_files_deleted_from_stage.txt")"
+echo "Files $(echo $file_list | tr '\n' ' ')committed to remote repository"
+if [ $(wc -l < "$path_to_remote_repo/git_log.txt") -gt 1 ]; then
+    second_last_hash=$(tail -n 2 $path_to_remote_repo/git_log.txt | head -n 1 | cut -d ':' -f 1 | sed 's/^[ \t]*//;s/[ \t]*$//')
     echo ""
     echo "Changed files between commits $second_last_hash and $hash_value:"
     find_changed_files_between_commits $second_last_hash $hash_value

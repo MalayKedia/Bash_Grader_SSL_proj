@@ -32,11 +32,11 @@ path_to_remote_repo=$(readlink -f ./.my_git)
 
 if [ $# -eq 1 ]; then
     if [ "$1" = 'HEAD' ]; then
-        latest_hash=$(tail -n 1 $path_to_remote_repo/git_log.txt | cut -d ':' -f 1 |  sed 's/[ \t]*$//')
+        latest_hash=$(return_hash_HEADn $path_to_remote_repo 0)
         checkout_by_hash $path_to_remote_repo $latest_hash
     elif [[ $1 =~ ^HEAD~[0-9]+$ ]]; then
-        number=$(($(echo $1 | cut -d '~' -f 2)+1))
-        hash=$(tail -n $number $path_to_remote_repo/git_log.txt | head -n 1 | cut -d ':' -f 1 |  sed 's/[ \t]*$//')
+        number=$(echo $1 | cut -d '~' -f 2)
+        hash=$(return_hash_HEADn $path_to_remote_repo $number)
         if [ -n "$hash" ]; then
             checkout_by_hash $path_to_remote_repo $hash
         else
@@ -72,4 +72,4 @@ elif [ "$1" = '-m' ]; then
 else
     echo "Invalid arguments"
     exit 1
-fi     
+fi
