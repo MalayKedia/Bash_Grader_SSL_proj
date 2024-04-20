@@ -6,6 +6,13 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+present_dir=$(pwd)
+path_of_script=$(realpath $(dirname "$0"))
+if [ "$present_dir" != "$path_of_script" ]; then
+    echo "Please run the script from the directory where it is located"
+    exit 1
+fi
+
 # If the first argument is 'combine'
 << COMMENT
     To combine all csv files in current directory: Usage: bash submission.sh combine
