@@ -6,6 +6,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+# Check if the script is run from the directory where it is located
 present_dir=$(pwd)
 path_of_script=$(realpath $(dirname "$0"))
 if [ "$present_dir" != "$path_of_script" ]; then
@@ -24,7 +25,7 @@ if [ "$1" = 'combine' ]; then
 
 # If the first argument is 'upload'
 << COMMENT
-    To copy the file to the current directory: Usage: bash submission.sh upload <file>
+    To copy the files to the current directory: Usage: bash submission.sh upload <file1> <file2> <file3> ...
 COMMENT
 elif [ "$1" = 'upload' ]; then
     shift
@@ -32,7 +33,7 @@ elif [ "$1" = 'upload' ]; then
 
 # If the first argument is 'clean'
 << COMMENT
-    To remove any file: Usage: bash submission.sh clean <file1> <file2> <file3> ...
+    To remove any files from current directory: Usage: bash submission.sh clean <file1> <file2> <file3> ...
 COMMENT
 elif [ "$1" = 'clean' ]; then
     shift
@@ -62,22 +63,36 @@ elif [ "$1" = 'git_init' ]; then
     shift
     bash Scripts/git_commands/git_init.sh "$@"
 
+# If the first argument is 'git_add_to_stage'
+<< COMMENT
+    To add new/modified files to the staging area: Usage: bash submission.sh git_add_to_stage <file1> <file2> ...
+    To add deletion of a file to the staging area: Usage: bash submission.sh git_add_to_stage --delete <file1> <file2> ...
+COMMENT
 elif [ "$1" = 'git_add_to_stage' ]; then
     shift
     bash Scripts/git_commands/git_add_to_stage.sh "$@"
 
+# If the first argument is 'git_remove_from_stage'
+<< COMMENT
+    To remove new/modified files from the staging area: Usage: bash submission.sh git_remove_from_stage <file1> <file2> ...
+    To remove deletion of a file from the staging area: Usage: bash submission.sh git_remove_from_stage --delete <file1> <file2> ...
+COMMENT
 elif [ "$1" = 'git_remove_from_stage' ]; then
     shift
     bash Scripts/git_commands/git_remove_from_stage.sh "$@"
 
+# If the first argument is 'git_status'
+<< COMMENT
+    To view the status of the current repository wrt the stage: Usage: bash submission.sh git_status
+COMMENT
 elif [ "$1" = 'git_status' ]; then
     shift
     bash Scripts/git_commands/git_status.sh "$@"
 
 # If the first argument is 'git_commit'
 << COMMENT
-    To commit the changes to the remote repository: Usage: bash submission.sh git_commit
-    To commit the changes to the remote repository with a message: Usage: bash submission.sh git_commit -m <message>
+    To commit the stage to the remote repository: Usage: bash submission.sh git_commit
+    To commit the stage to the remote repository with a message: Usage: bash submission.sh git_commit -m <message>
 COMMENT
 elif [ "$1" = 'git_commit' ]; then
     shift
@@ -91,10 +106,9 @@ elif [ "$1" = 'git_log' ]; then
     shift
     bash Scripts/git_commands/git_log.sh "$@"
 
-
 # If the first argument is 'git_checkout'
 << COMMENT
-    To checkout the latest commit: Usage: bash submission.sh git_checkout HEAD
+    To checkout the commit n commits before HEAD: Usage: bash submission.sh git_checkout HEAD[~n]
     To checkout a commit by hash: Usage: bash submission.sh git_checkout <hash>
     To checkout a commit by message: Usage: bash submission.sh git_checkout -m <message>
 COMMENT
@@ -102,87 +116,30 @@ elif [ "$1" = 'git_checkout' ]; then
     shift
     bash Scripts/git_commands/git_checkout.sh "$@"
 
-
+# If the first argument is 'plot_histogram'
+<<COMMENT
+    To plot a histogram of marks of an exam: Usage: bash submission.sh plot_histogram [options] examname
+Options:
+  --maxmarks <value>   Set the maximum value for the marks
+  --minmarks <value>   Set the minimum value for the marks
+  -o <output_file>     Specify the output file for the generated plot
+  --bins <value>       Set the number of bins in the histogram (default: 10)
+COMMENT
 elif [ "$1" = 'plot_histogram' ]; then
-    max_marks=""  # Default value for maximum marks
-    output_file="" # Default value for output file
+    shift
+    python3 Scripts/analytics/plot_histogram.py "$@"
 
-    # Parsing command-line options
-    while getopts ":m:o:" opt; do
-        case $opt in
-            m)
-                max_marks="$OPTARG"
-                echo "hi"
-                ;;
-            o)
-                output_file="$OPTARG"   
-                echo "bye"
-                ;;
-            \?)
-                echo "Invalid option: -$OPTARG"
-                exit 1
-                ;;
-            :)
-                echo "Option -$OPTARG requires an argument."
-                exit 1
-                ;;
-        esac
-    done
-    shift $((OPTIND -1)) # Shift to next argument after options
-
-    filename="$1.csv"
-    if [ ! -f "$filename" ]; then
-        echo "File $filename does not exist"
-        exit 1
-    fi
-
-    python3 - <<END
-import matplotlib.pyplot as plt
-import numpy as np
-
-data = np.genfromtxt("$filename", delimiter=",", dtype=str, skip_header=1)
-marks = np.array([0 if entry == 'a' else float(entry) for entry in data[:, 2]])
-
-plt.figure(figsize=(8, 6))
-plt.hist(marks, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
-plt.xlabel('Marks')
-plt.ylabel('Frequency')
-plt.title('Mark distribution for $1')
-plt.grid(axis='y', alpha=0.75)
-
-if "$max_marks" != ""; then
-    plt.xlim(0, $max_marks)
-fi
-
-if "$output_file" != ""; then
-    plt.savefig("$output_file")
-else
-    plt.show()
-fi
-END
+# If the first argument is 'plot_scatter'
+<<COMMENT
+    To plot a scatter plot of marks of two exams: Usage: bash submission.sh plot_scatter [options] exam1 exam2
+Options:
+    -o <output_file>     Specify the output file for the generated plot
+COMMENT
 elif [ "$1" = 'plot_scatter' ]; then
-    exam1="$2"
-    exam2="$3"
-    col_no_1=$(awk -F, -v exam1="$exam1" 'NR==1 {for(i=1;i<=NF;i++) {if ($i == exam1) print i}}' main.csv)
-    col_no_2=$(awk -F, -v exam2="$exam2" 'NR==1 {for(i=1;i<=NF;i++) {if ($i == exam2) print i}}' main.csv)
-    python3 - <<END
+    shift
+    python3 Scripts/analytics/plot_scatter.py "$@"
 
-import matplotlib.pyplot as plt
-import numpy as np
-
-data = np.genfromtxt("main.csv", delimiter=",", skip_header=1)
-marks1 = data[:, ${col_no_1}-1]
-marks2 = data[:, ${col_no_2}-1]
-
-plt.figure(figsize=(8, 6))
-plt.scatter(marks1, marks2, color='skyblue', alpha=0.7)
-plt.xlabel('${exam1}')
-plt.ylabel('${exam2}')
-plt.title('Correlation between ${exam1} and ${exam2}')
-plt.grid(alpha=0.75)
-plt.show()
-END
-
+# Return an error if invalid command is given
 else
     echo "Invalid command"
     exit 1

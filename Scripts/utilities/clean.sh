@@ -7,6 +7,4 @@ for file in "$@"; do
     else
         echo "File $file does not exist"
     fi
-done    
-
-
+done
