@@ -39,6 +39,10 @@ elif [ "$1" = 'clean' ]; then
     shift
     bash Scripts/utilities/clean.sh "$@"
 
+# If the first argument is 'scale'
+<< COMMENT
+    To scale the marks of each student: Usage: bash submission.sh scale <examname> <maxmarks_orig> <maxmarks_final>
+COMMENT
 elif [ "$1" = 'scale' ]; then
     shift
     bash Scripts/utilities/scale.sh "$@"
@@ -120,10 +124,36 @@ elif [ "$1" = 'git_checkout' ]; then
     shift
     bash Scripts/git_commands/git_checkout.sh "$@"
 
+# If the first argument is 'grade'
+<< COMMENT
+    To grade the students: Usage: bash submission.sh grade <output_file> [options]
+Options:
+    --baskets: Specify custom grade baskets in descending order. Default is ['AA', 'AB', 'BB', 'BC', 'CC', 'CD', 'DD', 'FF'].
+    --relative: Use relative grading based on mean and standard deviation.
+    --absolute: Use absolute grading with custom grade boundaries.
+    --boundaries: Specify custom grade boundaries when using absolute grading.
+    --clustering: Use clustering-based grading.
+    --criteria: Specify the criteria for grading(Default is total)
+COMMENT
+elif [ "$1" = 'grade' ]; then
+    shift
+    python3 Scripts/analytics/grade.py "$@"
+
+# If the first argument is 'calc_stats'
+<< COMMENT
+    To calculate the statistics of the marks: Usage: bash submission.sh calc_stats <examname1>  <examname2> ... (total is a valid examname)
+    (By default, it calculates stats for all exams)
+COMMENT
 elif [ "$1" = 'calc_stats' ]; then
     shift
     python3 Scripts/analytics/calc_stats.py "$@"
 
+# If the first argument is 'calc_correlation'
+<< COMMENT
+    To calculate the correlation between the marks of two exams: Usage: bash submission.sh calc_correlation <exam1> <exam2>
+Options:
+  --matrix: Print correlation matrix for multiple columns:    Usage: bash submission.sh calc_correlation --matrix <exam1> <exam2> ...
+COMMENT
 elif [ "$1" = 'calc_correlation' ]; then
     shift
     python3 Scripts/analytics/calc_correlation.py "$@"
