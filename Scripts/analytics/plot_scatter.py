@@ -28,8 +28,17 @@ import numpy as np
 data = np.genfromtxt(filename, delimiter=",", dtype=str)
 header = data[0]
 
-col_1 = [i for i in range(len(header)) if header[i] == arguments[0]][0]
-col_2 = [i for i in range(len(header)) if header[i] == arguments[1]][0]
+col_1 = [i for i in range(len(header)) if header[i] == arguments[0]]
+col_2 = [i for i in range(len(header)) if header[i] == arguments[1]]
+
+if len(col_1) == 0:
+    print(arguments[0] + " does not exist in main.csv")
+    sys.exit(1)
+if len(col_2) == 0:
+    print(arguments[1] + " does not exist in main.csv")
+    sys.exit(1)
+col_1 = col_1[0]
+col_2 = col_2[0]
 
 marks_exam1 = np.array([0 if entry == 'a' else float(entry) for entry in data[1:, col_1]])
 marks_exam2 = np.array([0 if entry == 'a' else float(entry) for entry in data[1:, col_2]])

@@ -39,6 +39,10 @@ elif [ "$1" = 'clean' ]; then
     shift
     bash Scripts/utilities/clean.sh "$@"
 
+elif [ "$1" = 'scale' ]; then
+    shift
+    bash Scripts/utilities/scale.sh "$@"
+
 # If the first argument is 'total'
 << COMMENT
     To calculate the total marks of each student: Usage: bash submission.sh total
@@ -115,6 +119,14 @@ COMMENT
 elif [ "$1" = 'git_checkout' ]; then
     shift
     bash Scripts/git_commands/git_checkout.sh "$@"
+
+elif [ "$1" = 'calc_stats' ]; then
+    shift
+    python3 Scripts/analytics/calc_stats.py "$@"
+
+elif [ "$1" = 'calc_correlation' ]; then
+    shift
+    python3 Scripts/analytics/calc_correlation.py "$@"
 
 # If the first argument is 'plot_histogram'
 <<COMMENT
