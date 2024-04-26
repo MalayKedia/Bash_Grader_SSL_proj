@@ -45,7 +45,9 @@ if [ -f "main.csv" ]; then
                 break
             fi
         done
-        bash submission.sh combine
+        if [ -f "main.csv" ]; then
+            update_mains
+        fi
     else
         echo "Exam not found, please try again"
     fi

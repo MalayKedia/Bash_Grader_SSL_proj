@@ -30,5 +30,5 @@ scale_marks $examname $maxmarks_orig $maxmarks_final
 total_run_before=$(check_if_total_run_before)
 
 if [ -f "main.csv" ]; then
-        bash submission.sh combine
+    update_mains
 fi

@@ -160,6 +160,19 @@ combine() {
     done >> main.csv    
 }
 
+update_mains() {
+    header=$(head -n 1 main.csv | cut -d ',' --output-delimiter " " -f 3- | sed 's/ total$//')
+    
+    filename=""
+    for i in $header; do
+        if [ -f "$i.csv" ]; then
+            filename="${filename} $i.csv"
+        fi
+    done    
+    bash submission.sh combine $filename
+}
+
+
 check_if_total_run_before() {
     if [ -f "main.csv" ]; then
         total_exists=$(head -n 1 main.csv | awk -F',' '{print $NF}' | grep "^total$")
