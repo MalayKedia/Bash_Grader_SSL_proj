@@ -200,6 +200,19 @@ elif [ "$1" = 'grade' ]; then
     shift
     python3 Scripts/analytics/grade.py "$@"
 
+# If the first argument is 'report_card'
+<< COMMENT
+    To generate the report card of a student: Usage: bash submission.sh report_card <student_roll_no>
+    # To generate the report card of a student: Usage: bash submission.sh report_card --name <student_name>
+    All report cards are saved in the "Reports" directory
+Options:
+    -o <output_file>: Specify the output file for the generated report card (default: report_{roll_no}.pdf)
+    --grades_file <file>: Specify the file containing the grades of the students
+COMMENT
+elif [ "$1" = 'report_card' ]; then
+    shift
+    python3 Scripts/analytics/report_card.py "$@"
+
 # Return an error if invalid command is given
 else
     echo "Invalid command"
