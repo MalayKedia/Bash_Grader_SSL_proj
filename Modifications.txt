@@ -1,9 +1,9 @@
 Implementing git diff, branch, merge.
 Making fancy report card for student
-Give weigtage and use relative marks
-Percentage
 
 Change combine to conider main existing
-Git ignore
+implement add -A
 
-Search name
+
+Git ignore
+Percentile, rank

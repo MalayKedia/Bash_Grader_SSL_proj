@@ -124,6 +124,25 @@ elif [ "$1" = 'git_checkout' ]; then
     shift
     bash Scripts/git_commands/git_checkout.sh "$@"
 
+# If the first argument is 'closest_name'
+<< COMMENT
+    To find the closest name to a given name: Usage: bash submission.sh closest_name <name>
+COMMENT
+elif [ "$1" = 'closest_name' ]; then
+    shift
+    python3 Scripts/analytics/closest_name.py "$@"
+
+# If the first argument is 'print_marks'
+<< COMMENT
+    To print the marks of a student from roll no.: Usage: bash submission.sh print_marks <student_roll_no>
+    To print the marks of a student from name:     Usage: bash submission.sh print_marks --name <student_name>
+Options:
+    --close: Specify to print the marks of the closest name/ roll_no to the given name
+COMMENT
+elif [ "$1" = 'print_marks' ]; then
+    shift
+    python3 Scripts/analytics/print_marks.py "$@"
+
 # If the first argument is 'calc_stats'
 << COMMENT
     To calculate the statistics of the marks: Usage: bash submission.sh calc_stats <examname1>  <examname2> ... (total is a valid examname)

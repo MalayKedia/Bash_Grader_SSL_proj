@@ -226,6 +226,38 @@ The command checks out the specified commit by copying and hence overwriting the
 
 In this section, we delve into various commands related to analytics aimed at analyzing and visualizing data. The scripts include a cover a range of analytical techniques, including calculating statistical measures and the analysis of relationships between variables through correlation analysis. Visualizations are a powerful tool for understanding data patterns, and the commands facilitate the creation of histograms and scatter plots, respectively, to visualize distributions and relationships within the data. Finally, there is functionality for assigning grades. Through these analytics scripts, we aim to provide a comprehensive toolkit for exploring and understanding student data.
 
+\subsubsection{Closest\_name}
+The \texttt{closest\_name} command is designed to find the closest name to a given input name. It provides a useful utility for tasks such as name matching or fuzzy string matching. It takes a name as input and returns the closest matching name from \texttt{main.csv}. It can be particularly useful in scenarios where approximate matching or correction of input data is required.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To find the closest name to a given name:
+\begin{lstlisting}[language=bash]
+bash submission.sh closest_name <name>
+\end{lstlisting}
+\end{adjustwidth}
+
+The command employs metric of levenshtein distance to find the string closest to the given name among the database, by returning the string from the database which had the lowest levenshtein distance from our input string. The implementation of levenshtein distance uses only python and no other libraries.
+
+\subsubsection{Print\_marks}
+The \texttt{print\_marks} command is a tool for accessing and printing the marks of students based on their roll numbers or names. It offers flexibility by allowing users to search for marks using either the student's roll number or name. Additionally, users can choose to print the marks of the closest name or roll number to the provided input, which can be beneficial for handling minor input discrepancies.\\
+\textbf{Usage:}
+\begin{itemize}
+    \item To print the marks of a student from roll no.:
+    \begin{lstlisting}[language=bash]
+    bash submission.sh print_marks <student_roll_no>
+    \end{lstlisting}
+    \item To print the marks of a student from name:
+    \begin{lstlisting}[language=bash]
+    bash submission.sh print_marks --name <student_name>
+    \end{lstlisting}
+\end{itemize}
+
+\textbf{Options:}
+\begin{itemize}
+    \item \texttt{--close}: Specify to print the marks of the closest name/roll\_no to the given name.
+\end{itemize}
+
+It extracts information from \texttt{main.csv} to retrieve and print the marks corresponding to the provided input in form of name or roll no., facilitating quick access to student performance data. It utilizes levenshtein distance when given the tag of \texttt{--close} to handle minor discrepancies in input names, ensuring robustness and ease of use. 
 
 \subsubsection{Calc\_stats}
 The \texttt{calc\_stats} command calculates various statistics for the marks obtained in different exams. It accepts exam names as arguments and computes statistics such as the total number of students present, maximum score, minimum score, mean, standard deviation, skewness, quartiles, and mode. The script supports analyzing multiple exams simultaneously, providing insights into the performance distribution across different assessments.\\
