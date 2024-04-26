@@ -7,6 +7,6 @@ endsem.csv
 
 .my_git
 
-cat_scripts.sh
-
 plot_grade.py
+
+grades.csv

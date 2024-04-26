@@ -1,0 +1,325 @@
+\documentclass{article}
+\usepackage{minted}
+\usepackage{changepage}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\lstset{
+    backgroundcolor=\color{white},
+    breaklines=true,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green},
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=4
+}
+
+\usepackage{enumitem}
+\setlist[itemize]{itemsep=0.5em}
+
+\title{Bash Grader Project}
+\author{Malay Kedia}
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\clearpage
+
+\section{Introduction}
+In schools and colleges, keeping track of student details with their marks and grades is essential. BASH GRADER is a helpful tool designed to handle CSV files containing this information.\\
+The project aims to streamline various tasks related to CSV file management through a set of commands executed via a bash script named submission.sh. First, it combines different CSV files into one, so all the student information is in a single place. Then, it can calculate totals and statistics related to all exams, helping teachers understand how students are doing overall. It can allow TAs or teachers to update marks in case of changes in marks after crib sessions. It has a linear VCS system built into it, to keep track of changes and updates in the CSV files.\\
+This project aims to simplify the process of managing student data. It's like having a handy assistant to organize and analyze grades effortlessly. In this report, we'll explain how BASH GRADER works, its features, and how it can make life easier for educators. 
+
+\section{Bash Script Documentation}
+
+\subsection{Utilities}
+\subsubsection{Combine}
+The \texttt{combine} command merges multiple CSV files containing the marks of students in different exams into a single \texttt{main.csv} file. Thus, the output file contains student information such as roll numbers, names, and their respective marks from each input CSV file.\\
+\textbf{Usage:}
+\begin{itemize}
+\item To combine all csv files in current directory:
+\begin{lstlisting}[language=bash]
+bash submission.sh combine
+\end{lstlisting}
+\item To combine given csv files in the provided order:
+\begin{lstlisting}[language=bash]
+bash submission.sh combine <file1.csv> <file2.csv> ...
+\end{lstlisting}
+\end{itemize}
+
+It verifies the existence and format of all provided files; creates the header for \texttt{main.csv} with Roll Number, Name and various exam-name columns; appends the names and roll numbers from each provided file to \texttt{main.csv};and finally adds the marks from each provided file to \texttt{main.csv}, entering 'a' if the student was absent in a particular exam based on the corresponding roll numbers.
+
+\subsubsection{Upload}
+The \texttt{upload} command facilitates the uploading or importing of files to the current directory.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To copy files to the current directory:
+\begin{lstlisting}[language=bash]
+bash submission.sh upload <file1> <file2> ...
+\end{lstlisting}
+\end{adjustwidth}
+
+It verifies the existence of the specified files and then copies them to the current directory. After successful copying, it confirms the same on terminal.
+
+\subsubsection{Clean}
+The \texttt{clean} command enables users to remove specified files from the current directory.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To remove specified files from the current directory:
+\begin{lstlisting}[language=bash]
+bash submission.sh clean <file1> <file2> ...
+\end{lstlisting}
+\end{adjustwidth}
+
+It checks for the existence of each specified file and removes them from the current directory if they exist. After successful deletion, it confirms the same on terminal.
+
+\subsubsection{Scale}
+The \texttt{scale} utility adjusts the marks of each student in an exam, by scaling all marks by a constant factor. This is useful when the weightage of 1 mark in 2 exams is different, and hence, for totaling, we want to scale the exam marks.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To scale in exam \texttt{examname} by changing original max marks to final max marks:
+\begin{lstlisting}[language=bash]
+bash submission.sh scale <examname> <maxmrks_orig><maxmrks_fin>
+\end{lstlisting}
+\end{adjustwidth}
+
+It scales the marks of each student relative to the original maximum marks and the desired final maximum marks. If \texttt{main.csv} exists, it updates the same.
+
+\subsubsection{Total}
+The \texttt{total} command calculates the total marks of each student based on their individual subject marks.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To calculate the total marks of each student:
+\begin{lstlisting}[language=bash]
+bash submission.sh total
+\end{lstlisting}
+\end{adjustwidth}
+
+It sums up the marks of each student across all subjects, treating 'a' as zeros, and appends the total marks to each student's record in \texttt{main.csv}. If \texttt{main.csv} doesnt exist, it prompts the user to run the combine command first. Once run, it is always run on its own whenever changes are made to main.csv.
+
+\subsubsection{Update}
+The \texttt{update} command allows users to modify the marks of students in a dataset, allowing changes in dataset after cribs, allowing easy and interactive access to dataset.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To update the marks of a student:
+\begin{lstlisting}[language=bash]
+bash submission.sh update
+\end{lstlisting}
+\end{adjustwidth}
+
+On running the command, the user is prompted to specify the exam for which marks are to be updated. Subsequently, the script prompts the user to input the roll number of the student whose marks require modification. If the specified roll number does not exist in the dataset, the user is given the option to add the student, including their name and initial marks. Conversely, if the roll number exists, the script retrieves the corresponding student's name and confirms the selection with the user. After successfully updating the marks, the script offers the option to repeat the process for another student. Once all updates are completed, the updated dataset is consolidated using the bash submission.sh combine command if \texttt{main.csv} had existed before running the command.
+
+\subsection{Implementation of VCS}
+
+The code provides a custom version control system (VCS) similar to Git, offering essential functionalities for managing repositories containing files like CSVs and PNGs. The Git repository structure comprises directories for storing various components such as staged changes, commit history, and working files. In this system, a symbolic link (symlink) is utilized to track the location of the Git repository. This symlink serves as a reference point, enabling the scripts to locate and operate within the repository directory structure seamlessly. By establishing this symbolic connection, the VCS scripts can access and manipulate the repository's contents, including staging changes, committing snapshots, and retrieving historical versions.
+
+\subsubsection{Git\_init}
+The \texttt{git\_init} command initializes a remote repository at the specified location and uses the same for version control.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To initialize a remote repository:
+\begin{lstlisting}[language=bash]
+bash submission.sh git\_init <path\_to\_remote\_repo>
+\end{lstlisting}
+\end{adjustwidth}
+
+ It creates the necessary directory structure within the specified path, including directories for storing staged changes and commit history. Additionally, it sets up essential files like \texttt{git\_log.txt} and \texttt{git\_files\_deleted\_from\_stage.txt} to track commit history and deleted files from the staging area, respectively. A symbolic link (\texttt{.my\_git}) is established to reference the remote repository's location, facilitating easy access for subsequent VCS operations. 
+
+\subsubsection{Git\_add\_to\_stage}
+The \texttt{git\_add\_to\_stage} command is used to add addition, modification or deletion of files to the staging area in preparation for a commit in the version control system.\\
+\textbf{Usage:}
+\begin{itemize}
+\item To add new/modified files to the staging area:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_add_to_stage <file1> <file2> ...
+\end{lstlisting}
+\item To add deletion of files to the staging area:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_add_to_stage --delete <file1> ...
+\end{lstlisting}
+\end{itemize}
+
+It copies the files provided as arguments from working directory to the staging area. If no arguments are provided, it prompts the user to specify the files to be added. Alternatively, it can add files marked for deletion by using the \texttt{--delete} flag followed by the list of files to be removed, by adding their names to \texttt{git\_files\_deleted\_from\_stage.txt}. 
+
+\subsubsection{Git\_remove\_from\_stage}
+The \texttt{git\_remove\_from\_stage} command is used to remove files from the staging area in the version control system. It can remove newly added or modified files from the staging area or cancel the deletion of files marked for removal. Upon successful addition, the command confirms the files added to the staging area.\\
+\textbf{Usage:}
+\begin{itemize}
+\item To remove new/modified files from the staging area:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_remove_from_stage <file1> <file2> ...
+\end{lstlisting}
+\item To remove deletion of a file from the staging area:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_remove_from_stage --delete <file1> <file2> ...
+\end{lstlisting}
+\end{itemize}
+
+It deletes the files given as arguments from the staging area in the remote repository. If no arguments are provided, it prompts the user to specify the files to be removed. Alternatively, it can remove files marked for deletion by using the \texttt{--delete} flag followed by the list of files to be removed, by removing their names from \texttt{git\_files\_deleted\_from\_stage.txt}. Upon successful removal, the command confirms the files removed from the staging area.
+
+\subsubsection{Git\_status}
+The \texttt{git\_status} command is used to view the status of the current repository with respect to the staging area in the version control system. It displays changes to be committed files, changes not staged for commit, and untracked files. The output provides a comprehensive overview of the repository's status, aiding users in tracking modifications and managing files effectively.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To view the status of the current repository with respect to the stage:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_status
+\end{lstlisting}
+\end{adjustwidth}
+
+The command determines the latest commit's hash and then compares the files in the staging area with those in the latest commit to identify new, modified, and deleted files. Additionally, it detects changes not staged for commit and lists untracked files. 
+
+\subsubsection{Git\_commit}
+The \texttt{git\_commit} command is used to commit changes in the staging area to the remote repository in the version control system. It allows users to commit with or without a message.\\
+\textbf{Usage:}
+\begin{itemize}
+\item To commit the stage to the remote repository:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_commit
+\end{lstlisting}
+\item To commit the stage to the remote repository with a message:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_commit -m <message>
+\end{lstlisting}
+\end{itemize}
+
+It checks for files staged for commit. If no files are staged, it exits with a message indicating there are no files to commit. It then prompts the user to enter a commit message if one is not provided as an argument. The command creates a commit with a unique hash and appends the commit details to the \texttt{git\_log.txt}. It copies all files from previous commit not in \texttt{git\_files\_deleted\_from\_stage.txt} and overwrites them with staged files to the commits directory. Additionally, displays the changed files between the current and previous commits. Finally, it clears the staging area after a successful commit.
+
+\subsubsection{Git\_log}
+The \texttt{git\_log} command is used to view the log of commits in the remote repository in the version control system.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To view the log of commits:
+\begin{lstlisting}[language=bash]
+bash submission.sh git_log
+\end{lstlisting}
+\end{adjustwidth}
+
+The command displays the content of the \texttt{git\_log.txt} file, which contains the commit history with details such as commit hash, timestamp, and commit message.
+
+\subsubsection{git\_checkout}
+The \texttt{git\_checkout} command allows users to switch to a specific commit in the version control system. It supports three different methods of checkout: by commit hash, by specifying the number of commits before HEAD, and by commit message.\\
+\textbf{Usage:}
+\begin{itemize}
+    \item To checkout the commit n commits before HEAD:
+    \begin{lstlisting}[language=bash]
+    bash submission.sh git_checkout HEAD[~n]
+    \end{lstlisting}
+    \item To checkout a commit by hash:
+    \begin{lstlisting}[language=bash]
+    bash submission.sh git_checkout <hash>
+    \end{lstlisting}
+    \item To checkout a commit by message:
+    \begin{lstlisting}[language=bash]
+    bash submission.sh git_checkout -m <message>
+    \end{lstlisting}
+\end{itemize}
+
+The command checks out the specified commit by copying and hence overwriting the files from that commit to the current working directory. If multiple commits are found with the same message, it prompts the user to provide a more specific identifier.
+
+\subsection{Analytics}
+
+In this section, we delve into various commands related to analytics aimed at analyzing and visualizing data. The scripts include a cover a range of analytical techniques, including calculating statistical measures and the analysis of relationships between variables through correlation analysis. Visualizations are a powerful tool for understanding data patterns, and the commands facilitate the creation of histograms and scatter plots, respectively, to visualize distributions and relationships within the data. Finally, there is functionality for assigning grades. Through these analytics scripts, we aim to provide a comprehensive toolkit for exploring and understanding student data.
+
+
+\subsubsection{Calc\_stats}
+The \texttt{calc\_stats} command calculates various statistics for the marks obtained in different exams. It accepts exam names as arguments and computes statistics such as the total number of students present, maximum score, minimum score, mean, standard deviation, skewness, quartiles, and mode. The script supports analyzing multiple exams simultaneously, providing insights into the performance distribution across different assessments.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To calculate the statistics of the marks for specific exams:
+\begin{lstlisting}[language=bash]
+bash submission.sh calc_stats <examname1> <examname2> ...
+\end{lstlisting}
+\end{adjustwidth}
+
+The command utilizes NumPy and SciPy libraries for efficient numerical computation and statistical analysis. If no exam names are provided, the script calculates statistics for all available exams by default. Additionally, specifying "total" as an exam name calculates statistics for the total marks, requiring prior execution of the `total` command to generate the necessary data.  Finally, the results are printed to the console.
+
+\subsubsection{Calc\_correlation}
+The \texttt{calc\_correlation} script calculates the correlation between the marks obtained in different exams. It accepts two exam names as arguments and computes the correlation coefficient between them. Additionally, it provides an option to print the correlation matrix for multiple columns, offering insights into the relationships among various assessments.\\
+\textbf{Usage:}
+\begin{itemize}
+    \item To calculate the correlation between the marks of two exams:
+    \begin{lstlisting}[language=bash]
+    bash submission.sh calc_correlation <exam1> <exam2>
+    \end{lstlisting}
+    \item To print correlation matrix for multiple columns:
+    \begin{lstlisting}[language=bash]
+    bash submission.sh calc_correlation --matrix <exam1> <exam2> ...
+    \end{lstlisting}
+\end{itemize}
+
+The script utilizes NumPy for efficient numerical computation and calculates the correlation coefficient using Pearson correlation.
+
+\subsubsection{Plot\_histogram}
+The \texttt{plot\_histogram} command generates a histogram to visualize the distribution of marks for a specific exam. It provides options to customize the plot by setting the maximum and minimum values for the marks, specifying the output file for the plot, and adjusting the number of bins in the histogram.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To plot a histogram of marks of an exam:
+\begin{lstlisting}[language=bash]
+bash submission.sh plot_histogram [options] examname
+\end{lstlisting}
+\end{adjustwidth}
+
+\textbf{Options:}
+\begin{itemize}
+    \item \texttt{--maxmarks <value>}: Set the maximum value for the marks.
+    \item \texttt{--minmarks <value>}: Set the minimum value for the marks.
+    \item \texttt{-o <output\_file>}: Specify the output file for the generated plot.
+    \item \texttt{--bins <value>}: Set the number of bins in the histogram (default: 10).
+\end{itemize}
+
+The script utilizes Matplotlib to create the histogram plot, providing a visual representation of the mark distribution. 
+
+\subsubsection{Plot\_scatter}
+The \texttt{plot\_scatter} script generates a scatter plot to visualize the correlation between marks of two different exams. It provides an effective means to explore potential correlations or patterns between exam performances. It also allows users to specify the output file for the generated plot.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To plot a scatter plot of marks of two exams:
+\begin{lstlisting}[language=bash]
+bash submission.sh plot_scatter [options] exam1 exam2
+\end{lstlisting}
+\end{adjustwidth}
+
+\textbf{Options:}
+\begin{itemize}
+    \item \texttt{-o <output\_file>}: Specify the output file for the generated plot.
+\end{itemize}
+
+The script utilizes Matplotlib to create the scatter plot, visualizing the relationship between marks obtained in two distinct exams. 
+
+\subsubsection{Grade}
+The \texttt{grade} command is used to assign grades to students based on their marks. It allows for flexible grading approaches, including relative grading based on mean and standard deviation, absolute grading with custom grade boundaries, and clustering-based grading. It provides various options for grading methods and customization of grade baskets.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To create a CSV file containing the grades of the students, along with their marks used for assigning grades:
+\begin{lstlisting}[language=bash]
+bash submission.sh grade <output_file> [options]
+\end{lstlisting}
+\end{adjustwidth}
+
+\textbf{Options:}
+\begin{itemize}
+    \item \texttt{--baskets}: Specify custom grade baskets in descending order. Default is ['AA', 'AB', 'BB', 'BC', 'CC', 'CD', 'DD', 'FF'].
+    \item \texttt{--clustering}: Use clustering-based grading.
+    \item \texttt{--relative}: Use relative grading based on mean and standard deviation.
+    \item \texttt{--absolute}: Use absolute grading with custom grade boundaries.
+    \item \texttt{--boundaries}: Specify custom grade boundaries when using absolute grading.
+    \item \texttt{--criteria}: Specify the criteria for grading (Default is total).
+\end{itemize}
+
+Using NumPy and SciPy modules, it enables users to specify grading preferences such as relative, absolute, or clustering-based grading, along with options to define custom grade baskets and boundaries. Leveraging statistical computations like mean, standard deviation, and clustering algorithms like K-means, the script efficiently assigns grades to students, ensuring fair and accurate assessment. The output is written to the specified output file, including student roll numbers, names, marks, and corresponding grades.
+
+\section{Error Handling}
+
+\section{Modularity}
+
+\section{Scope for Further Improvements}
+
+\section{Conclusion}
+
+\end{document}

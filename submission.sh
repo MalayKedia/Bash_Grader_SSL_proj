@@ -124,21 +124,6 @@ elif [ "$1" = 'git_checkout' ]; then
     shift
     bash Scripts/git_commands/git_checkout.sh "$@"
 
-# If the first argument is 'grade'
-<< COMMENT
-    To grade the students: Usage: bash submission.sh grade <output_file> [options]
-Options:
-    --baskets: Specify custom grade baskets in descending order. Default is ['AA', 'AB', 'BB', 'BC', 'CC', 'CD', 'DD', 'FF'].
-    --relative: Use relative grading based on mean and standard deviation.
-    --absolute: Use absolute grading with custom grade boundaries.
-    --boundaries: Specify custom grade boundaries when using absolute grading.
-    --clustering: Use clustering-based grading.
-    --criteria: Specify the criteria for grading(Default is total)
-COMMENT
-elif [ "$1" = 'grade' ]; then
-    shift
-    python3 Scripts/analytics/grade.py "$@"
-
 # If the first argument is 'calc_stats'
 << COMMENT
     To calculate the statistics of the marks: Usage: bash submission.sh calc_stats <examname1>  <examname2> ... (total is a valid examname)
@@ -180,6 +165,21 @@ COMMENT
 elif [ "$1" = 'plot_scatter' ]; then
     shift
     python3 Scripts/analytics/plot_scatter.py "$@"
+
+# If the first argument is 'grade'
+<< COMMENT
+    To grade the students: Usage: bash submission.sh grade <output_file> [options]
+Options:
+    --baskets: Specify custom grade baskets in descending order. Default is ['AA', 'AB', 'BB', 'BC', 'CC', 'CD', 'DD', 'FF'].
+    --clustering: Use clustering-based grading.
+    --relative: Use relative grading based on mean and standard deviation.
+    --absolute: Use absolute grading with custom grade boundaries.
+    --boundaries: Specify custom grade boundaries when using absolute grading.
+    --criteria: Specify the criteria for grading(Default is total)
+COMMENT
+elif [ "$1" = 'grade' ]; then
+    shift
+    python3 Scripts/analytics/grade.py "$@"
 
 # Return an error if invalid command is given
 else
