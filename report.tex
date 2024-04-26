@@ -202,7 +202,7 @@ bash submission.sh git_log
 
 The command displays the content of the \texttt{git\_log.txt} file, which contains the commit history with details such as commit hash, timestamp, and commit message.
 
-\subsubsection{git\_checkout}
+\subsubsection{Git\_checkout}
 The \texttt{git\_checkout} command allows users to switch to a specific commit in the version control system. It supports three different methods of checkout: by commit hash, by specifying the number of commits before HEAD, and by commit message.\\
 \textbf{Usage:}
 \begin{itemize}
@@ -316,10 +316,74 @@ Using NumPy and SciPy modules, it enables users to specify grading preferences s
 
 \section{Error Handling}
 
-\section{Modularity}
+Error handling is crucial in maintaining the reliability and robustness of any script or utility. This report provides an overview of how error handling is managed across different utilities, Git operations, and analytics scripts.
+
+\subsection{Submission.sh}
+It is ensured that the script is executed from its intended directory by comparing the current directory with the directory containing the script, displaying an error message if they dont match. Additionally, an error is returned if an invalid argument is provided to \texttt{submission.sh}
+
+\subsection{Utilities}
+Each utility script begins by checking the validity of the input arguments provided by the user. If the arguments are insufficient, invalid, or if the specified files are not found, informative error messages are displayed, guiding the user on the correct usage or necessary actions to resolve the issue. \\
+The scripts related to bringing changes in \texttt{main.csv} (eg. total) show an error when run before running of combine itself.\\
+Any commands (eg. update, scale) which change the contents of CSV file, automatically update the \texttt{main.csv} file if the data of that exam was present in it.\\
+Any commands which remake \texttt{main.csv} automatically run \texttt{total} if the pre-existing \texttt{main.csv} had a total column.\\ 
+
+\subsection{Operations of VCS}
+All git operation scripts, except \texttt{git\_init} validate the execution environment by ensuring that the symlink points towards the remote repository, and that the repository has been initialized before proceeding.\\
+Changes in staging area are committed only after checking if the supplied file-names exist in working directory for modifications and additions, and if the filenames exist in last commit but not in the working directory for deletions.\\
+Detailed error messages guide users on the necessary steps to rectify the situation, such as running initialization scripts (\texttt{git\_init}) or performing prerequisite actions (\texttt{combine}) before executing certain commands.\\
+
+\subsection{Analytics}
+All these commands are implemented using python, which has easier handling of flags and data-analysis. The command is parsed for existence of flags, and checked if any extra undefined flags or arguments are given, which return an error.\\
+They validate input arguments, check for the existence of required data files, and ensure proper initialization before executing complex statistical computations or grading algorithms. Informative error messages are provided to guide users on resolving issues, such as specifying correct input files, ensuring proper data formatting, or running prerequisite scripts (\texttt{total}) for necessary data aggregation.\\
+
+\subsection{Conclusion}
+Overall, robust error handling mechanisms are integrated into the script to enhance user experience, minimize unexpected failures, and provide clear guidance in resolving issues. By proactively addressing potential errors and guiding users through corrective actions, these scripts promote smoother execution and facilitate efficient data analysis, version control, and utility operations within diverse computing environments.
+
+\section{Code Modularity}
+
+Modularization is a crucial aspect of software development, promoting code organization, reusability, and maintainability. In the provided scripts, modularity is achieved through the division of code into functions and the segregation of functionality into separate files.\\
+
+\subsection{File-based Modularity}
+
+The code for each command has been written in separate files, appropriately named and organised according to category in the \texttt{Scripts} folder. These files are run whenever a suitable command is passed to submission.sh. Hence, the functionality is distributed across multiple files, with each file focusing on a specific aspect of the overall task.\\
+
+\subsection{Function-based Modularity}
+
+The scripts themselves consist of multiple functions, each responsible for a specific task. This modular approach makes it easier to implement changes to tasks performed repeatedly, as modifications need to be made only in one place. Additionally, the \texttt{utilities} and \texttt{git\_functions} directories each contain an additional file called \texttt{additional\_functions.sh}. These files are imported into all scripts and contain functions used across multiple scripts. Therefore, this function-based modularity promotes code reuse and simplifies testing and troubleshooting.
+
+\subsection{Conclusion}
+
+By adopting both function-based and file-based modularity, the codebase is structured in a way that promotes organization, extensibility, and maintainability. Developers can easily locate and modify specific functionality without impacting other parts of the system. Additionally, this modular approach fosters code reuse, allowing for the integration of common functions across different scripts and projects.
 
 \section{Scope for Further Improvements}
 
+While the current set of scripts provides a solid foundation for managing tasks related to utilities, Git operations, and analytics, there are several areas for potential enhancement. 
+\begin{itemize}
+    \item optimizing the code for performance by implementing efficient algorithms and data structures can enhance execution speed, especially for larger datasets in \texttt{combine} command and analytics commands.
+
+    \item optimizing the version control system using diff and patch techniques can enhance its efficiency in managing changes to files. By only storing the differences between versions, storage space and bandwidth usage can be minimized.
+    
+    \item integrating a branched version control system into the Git operations can provide users with more flexibility and control over their versioning workflows. This can include features such as branching, merging, and conflict resolution to support maintaining remote repositories across multiple devices.
+
+    \item adding a command to generate a report card based on the graded student data can streamline the process of creating and sharing performance reports.
+
+    \item expanding the functionality to support more advanced analytics techniques and visualization options could provide teachers with more comprehensive insights into the data of their class.
+    
+    \item ensuring compatibility with a wider range of operating systems and environments can make the scripts more versatile and accessible to a broader audience.
+    
+\end{itemize}
+
+Overall, these potential improvements can contribute to making the scripts more powerful, efficient, and user-friendly for various use cases and scenarios.
+
 \section{Conclusion}
+In conclusion, the implementation of various utilities, Git functionalities, and analytics scripts demonstrates a systematic approach to automating common tasks and managing version control efficiently. The use of modular code design fosters reusability, simplifies maintenance, and enhances the scalability of the codebase. Through error handling mechanisms and structured organization, the scripts ensure robustness and reliability in handling diverse scenarios. Overall, this report showcases a comprehensive framework for streamlining development workflows, promoting collaboration, and empowering users with tools for effective project management and data analysis.
+
+
+\section{References}
+\begin{itemize}
+    \item ChatGPT
+    \item GitHub Copilot
+    \item Resources provided for CS108 (Slides, Example files, Tutorial files)
+\end{itemize}
 
 \end{document}
