@@ -13,7 +13,7 @@ path_of_commit=$(find_folder_by_hash $path_to_remote_repo $latest_hash)
 
 added_files_in_stage=$(ls $path_to_remote_repo/stage)
 deleted_files_in_stage=$(cat $path_to_remote_repo/git_files_deleted_from_stage.txt)
-files_in_commit=$(ls $path_to_commit)
+files_in_commit=$(ls $path_of_commit)
 
 echo "Changes to be commited:"
 for file in $added_files_in_stage; do
