@@ -239,7 +239,7 @@ bash submission.sh closest_name <name>
 The command employs metric of levenshtein distance to find the string closest to the given name among the database, by returning the string from the database which had the lowest levenshtein distance from our input string. The implementation of levenshtein distance uses only python and no other libraries.
 
 \subsubsection{Student\_performance}
-The \texttt{student\_performance} command is a tool for accessing and printing the marks of students based on their roll numbers or names. It offers flexibility by allowing users to search for marks using either the student's roll number or name. Additionally, users can choose to print the marks of the closest name or roll number to the provided input, which can be beneficial for handling minor input discrepancies.\\
+The \texttt{student\_performance} command is a tool for accessing and printing the marks of students based on their roll numbers or names. It offers flexibility by allowing users to search for marks using either the student's roll number or name. Additionally, users can choose to print the marks of the closest name or roll number to the provided input, which can be beneficial for handling minor input discrepancies. If specified, the \texttt{--graph} option plots the student's marks relative to the maximum and average marks obtained in each exam.\\
 \textbf{Usage:}
 \begin{itemize}
     \item To print the marks of a student from roll no.:
@@ -255,6 +255,7 @@ The \texttt{student\_performance} command is a tool for accessing and printing t
 \textbf{Options:}
 \begin{itemize}
     \item \texttt{--close}: Specify to print the marks of the closest name/roll\_no to the given name.
+    \item \texttt{--graph}: Display the graph of student performance compared to class average and maximum marks.
 \end{itemize}
 
 It extracts information from \texttt{main.csv} to retrieve and print the marks corresponding to the provided input in form of name or roll no., facilitating quick access to student performance data. It utilizes levenshtein distance when given the tag of \texttt{--close} to handle minor discrepancies in input names, ensuring robustness and ease of use. 
@@ -345,6 +346,25 @@ bash submission.sh grade <output_file> [options]
 \end{itemize}
 
 Using NumPy and SciPy modules, it enables users to specify grading preferences such as relative, absolute, or clustering-based grading, along with options to define custom grade baskets and boundaries. Leveraging statistical computations like mean, standard deviation, and clustering algorithms like K-means, the script efficiently assigns grades to students, ensuring fair and accurate assessment. The output is written to the specified output file, including student roll numbers, names, marks, and corresponding grades.
+
+\subsubsection{Report\_Card}
+The \texttt{report\_card} command generates a comprehensive report card for a student, presenting detailed information about their academic performance. It allows users to specify the student's roll number and provides options for customization such as specifying the output file name and providing a separate file containing grades. Additionally, the generated report cards are saved in the "Reports" directory for easy access and organization.\\
+\textbf{Usage:}
+\begin{adjustwidth}{0.5cm}{0cm}
+To generate the report card of a student:
+\begin{lstlisting}[language=bash]
+bash submission.sh report_card <student_roll_no> [options]
+\end{lstlisting}
+\end{adjustwidth}
+
+\textbf{Options:}
+\begin{itemize}
+    \item \texttt{-o <output\_file>}: Specify the output file for the generated report card (default: report\_{roll\_no}.pdf).
+    \item \texttt{--grades\_file <file>}: Specify the file containing the grades of the students.
+\end{itemize}
+
+Utilizing Python's data processing capabilities along with LaTeX for document generation, the script retrieves student performance data from the main CSV file and creates a visually appealing report card. It offers flexibility in specifying output file names and incorporating external grade data files for accurate grading. The report cards are organized and stored in the "Reports" directory, ensuring easy access and management. The command enhances the process of generating student report cards, providing a convenient and efficient solution for academic assessment.
+
 
 \section{Error Handling}
 

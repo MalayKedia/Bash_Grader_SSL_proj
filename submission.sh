@@ -204,7 +204,6 @@ elif [ "$1" = 'grade' ]; then
 # If the first argument is 'report_card'
 << COMMENT
     To generate the report card of a student: Usage: bash submission.sh report_card <student_roll_no>
-    # To generate the report card of a student: Usage: bash submission.sh report_card --name <student_name>
     All report cards are saved in the "Reports" directory
 Options:
     -o <output_file>: Specify the output file for the generated report card (default: report_{roll_no}.pdf)
