@@ -18,6 +18,7 @@ if not os.path.exists("Reports"):
 
 output_dir = os.path.join(directory, "Reports")
 
+# Interpret the provided flags and arguments
 if "-o" in arguments:
     output_file_name = arguments[arguments.index("-o") + 1]
     output_file = os.path.join(output_dir, output_file_name)
@@ -33,6 +34,7 @@ if len(arguments) != 1:
     print("Invalid number of arguments")
     sys.exit(1)
 
+# If output file name is not provided, set the file name as 'report_<roll_no>'
 roll_no=arguments[0]
 if not locals().get("output_file"):
     output_file = os.path.join(output_dir, "report_{}".format(roll_no))        
@@ -46,6 +48,7 @@ roll_list = dataset[1:, 0]
 marks_list = dataset[1:, 2:]
 marks_header=dataset[0, 2:]
 
+# remove the total column if it exists
 if marks_header[-1] == "total":
     total_marks = marks_list[:, -1]
     marks_header = marks_header[:-1]
@@ -58,7 +61,6 @@ if not roll_no in roll_list:
 name=name_list[np.where(roll_list == roll_no)][0]
 marks_student=marks_list[np.where(roll_list == roll_no)][0]
 
-grade=None
 if locals().get("grades_file"):
     if not os.path.isfile(grades_file):
         print("Grades file does not exist.")
@@ -84,8 +86,9 @@ for exam in marks_header:
     max_marks.append(max(exam_marks))
     avg_marks.append(np.mean(exam_marks))
     
-plt.plot(marks_header, student_marks, label=roll_no)
-plt.plot(marks_header, max_marks, label='Max')
+# Plot the performance of the student in each exam and save the plot as a PNG file 
+plt.plot(marks_header, student_marks, label='Marks of '+roll_no)
+plt.plot(marks_header, max_marks, label='Class Maximum')
 plt.plot(marks_header, avg_marks, label='Average')
 plt.legend()
 plt.grid(axis='y')
@@ -95,6 +98,7 @@ plt.ylim(bottom=min(0,np.min(exam_marks)))
 plt.title('Performance in Exams')
 plt.savefig(os.path.join(output_dir, 'tempPerf.png'))
 
+# Generate the LaTeX content for the report card
 latex_content = r"""
 \documentclass[12pt]{article}
 \usepackage{geometry}
@@ -165,8 +169,6 @@ latex_content+=r"""
 \end{document}
 """
 
-# print(latex_content)
-
 # Write the LaTeX content to a .tex file
 output_tex_file = "{}.tex".format(output_file)
 with open(output_tex_file, "w") as tex_file:
@@ -174,6 +176,8 @@ with open(output_tex_file, "w") as tex_file:
 
 # Compile the .tex file to generate the PDF report card
 os.system("pdflatex -output-directory=Reports {} > /dev/null 2>&1".format(output_tex_file))
+
+# Remove the temporary files generated during the compilation process
 os.system("rm {}".format(output_tex_file))
 os.system("rm Reports/tempPerf.png")
 os.system("rm {}.log".format(output_file))

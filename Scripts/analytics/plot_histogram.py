@@ -2,6 +2,7 @@ import sys
 import os
 arguments = sys.argv[1:]
 
+# checks for the flags and arguments
 if "--maxmarks" in arguments:
     maxmarks = float(arguments[arguments.index("--maxmarks") + 1])
     del arguments[arguments.index("--maxmarks") + 1]

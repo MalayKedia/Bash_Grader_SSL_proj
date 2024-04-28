@@ -14,6 +14,7 @@ if not os.path.isfile(filename):
 data = np.genfromtxt(filename, delimiter=",", dtype=str)
 header = data[0]
 
+# check if matrix flag is present
 print_correlation_matrix = False
 if "--matrix" in arguments:
     print_correlation_matrix = True
@@ -62,7 +63,8 @@ else:
     for j in range(no_of_columns):
         col[j] = [i for i in range(len(header)) if header[i] == arguments[j]][0]
         marks_exam[j] = np.array([0 if entry == 'a' else float(entry) for entry in data[1:, col[j]]])
-                    
+
+    #filling the n by n correlation matrix by calculating the correlation coefficient between each pair of columns            
     correlation_matrix = np.ones((no_of_columns, no_of_columns))
     for i in range(no_of_columns):
         for j in range(no_of_columns):

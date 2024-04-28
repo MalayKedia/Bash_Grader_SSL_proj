@@ -2,12 +2,17 @@ import sys
 import os
 arguments = sys.argv[1:]
 
+# checking of flags and arguments
 if "--baskets" in arguments:
     baskets = list(arguments[arguments.index("--baskets") + 1].split(","))
     del arguments[arguments.index("--baskets") + 1]
     del arguments[arguments.index("--baskets")]
 else:
     baskets=['AA', 'AB', 'BB', 'BC', 'CC', 'CD', 'DD', 'FF']
+
+if "--clustering" in arguments:
+    type_grading="clustering"
+    del arguments[arguments.index("--clustering")]
 
 if "--relative" in arguments:
     type_grading="relative"
@@ -28,22 +33,19 @@ if "--absolute" in arguments:
     else:
         boundaries = None
 
-if "--clustering" in arguments:
-    type_grading="clustering"
-    del arguments[arguments.index("--clustering")]
-
 if "--criteria" in arguments:
     criteria = arguments[arguments.index("--criteria") + 1]
     del arguments[arguments.index("--criteria") + 1]
     del arguments[arguments.index("--criteria")]
 
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.stats import norm
 from sklearn.cluster import KMeans
 
 directory = os.getcwd()
 
+# if criteria flag is present, it is used as the marks for assigning grades
+# else, total is used, and if total is not present, the script exits
 if locals().get("criteria"):
     filename = os.path.join(directory, criteria + ".csv")
     if not os.path.isfile(filename):
@@ -73,6 +75,8 @@ else:
     output_file = os.path.join(directory, arguments[0])
 
 def grade_absolute(scores, baskets, boundaries):
+    # for absolute grading, the grades are assigned by dividing marks range between max and min scores into appropriate number of baskets
+    
     if not boundaries:
         score_min=scores.min()
         score_max=scores.max()
@@ -89,6 +93,8 @@ def grade_absolute(scores, baskets, boundaries):
     return grades
     
 def grade_relative(scores, baskets):
+    # for relative grading, the grades are assigned based on the percentile of the score in the list of scores 
+    
     mean_score = np.mean(scores)
     std_dev = np.std(scores)
     
@@ -104,10 +110,11 @@ def grade_relative(scores, baskets):
                 grades.append(baskets[i-1])
                 break
         else:
-            grades.append(baskets[-1])    
+            grades.append(baskets[-1])
     return grades
 
 def grade_clustering(marks, baskets):
+    # for clustering based grading, the marks are clustered into number of baskets and the clusters are assigned the grades
 
     kmeans = KMeans(n_clusters=len(baskets))
     kmeans.fit(np.array(marks).reshape(-1, 1))
@@ -125,20 +132,18 @@ def grade_clustering(marks, baskets):
     return sorted_grades_assigned
 
 if locals().get("type_grading"):
-    if type_grading=="relative":
+    if type_grading=="clustering":
+        grades = grade_clustering(marks, baskets)
+    elif type_grading=="relative":
         grades = grade_relative(marks, baskets)
     elif type_grading=="absolute":
         grades = grade_absolute(marks, baskets, boundaries)
-    elif type_grading=="clustering":
-        grades = grade_clustering(marks, baskets)
+
 else:
-    print("No type was specified, so the default type of grading, i.e. relative grading will be used.")
-    grades=grade_relative(marks, baskets)
+    print("No type was specified, so the default type of grading, i.e. clustering based grading will be used.")
+    grades=grade_clustering(marks, baskets)
 
-if (len(grades) != len(marks)):
-    print("Error")
-    exit(1)
-
+# the grades are written to the output file in format Roll No., Name, Marks, Grade
 with open(output_file, "w") as f:
     f.write("Roll No.,Name,Marks,Grade\n")
     for i, marks in enumerate(marks):

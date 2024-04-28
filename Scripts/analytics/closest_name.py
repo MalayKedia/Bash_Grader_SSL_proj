@@ -14,7 +14,7 @@ if not os.path.isfile(filename):
     print("Run the command 'bash submission.sh combine' first")
     sys.exit(1)
 
-
+#### Not written by me
 def levenshtein_distance(s1, s2):
     if len(s1) < len(s2):
         return levenshtein_distance(s2, s1)
@@ -59,6 +59,8 @@ print("Closest name to "+input_name+" is "+closest_name)
 roll = roll_list[np.where(name_list == closest_name)][0]
 print("Roll number of "+closest_name+" is "+roll)
 
+
+## Another possible approach from external library:
 # import Levenshtein
 
 # def find_closest_name(approx_name, name_list):

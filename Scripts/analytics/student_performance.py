@@ -2,6 +2,7 @@ import sys
 import os
 arguments = sys.argv[1:]
 
+# Check for presence of specific flags and set corresponding flags
 search_by_name=False
 if "--name" in arguments:
     search_by_name = True
@@ -21,6 +22,7 @@ if len(arguments) == 0:
     print("Invalid number of arguments")
     sys.exit(1)
 
+# Define path to the main CSV file containing student data
 directory = os.getcwd()
 filename = os.path.join(directory, "main.csv")
 
@@ -28,10 +30,7 @@ if not os.path.isfile(filename):
     print("main.csv does not exist.")
     print("Run the command 'bash submission.sh combine' first")
     sys.exit(1)
-    
-if len(arguments) == 0:
-    print("Invalid number of arguments")
-    sys.exit(1)
+
 
 def levenshtein_distance(s1, s2):
     if len(s1) < len(s2):
@@ -67,6 +66,7 @@ def find_closest_name(approx_name, name_list):
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 dataset = np.genfromtxt(filename, delimiter=',', dtype=str)
 name_list = dataset[1:, 1]
 roll_list = dataset[1:, 0]
@@ -80,6 +80,7 @@ if marks_header[-1] == "total":
 if search_by_name:
     input_name = " ".join(arguments)
     
+    # if close flag is set, find the closest name to the input name
     if close:
         input_name=find_closest_name(input_name, name_list)
         print("Closest name to "+input_name+" is "+input_name)  
@@ -91,17 +92,18 @@ if search_by_name:
     roll = roll_list[np.where(name_list == input_name)][0]
     print("Roll number of "+input_name+" is "+roll)
     
+    # Print marks of the student in all exams
     for exam in marks_header:
         marks=marks_list[np.where(name_list == input_name)][0][np.where(marks_header == exam)][0]
         if marks=='a':
             print("Student was absent in "+exam)
         else: 
             print("Marks in "+exam+" is "+marks)
-else:
+else: # search by roll number
     if len(arguments) != 1:
         print("Invalid number of arguments")
         sys.exit(1)
-        
+    
     roll_no = arguments[0]
     
     if close:
@@ -121,6 +123,7 @@ else:
         else: 
             print("Marks in "+exam+" is "+marks)
             
+# If graph flag is set, plot the performance of the student in all exams
 if graph:
     max_marks=[]
     avg_marks=[]
@@ -133,9 +136,9 @@ if graph:
 
         max_marks.append(max(exam_marks))
         avg_marks.append(np.mean(exam_marks))
-        
-    plt.plot(marks_header, student_marks, label=roll_no)
-    plt.plot(marks_header, max_marks, label='Max')
+    
+    plt.plot(marks_header, student_marks, label='Marks of '+roll_no)
+    plt.plot(marks_header, max_marks, label='Class Maximum')
     plt.plot(marks_header, avg_marks, label='Average')
     plt.legend()
     plt.grid(axis='y')
