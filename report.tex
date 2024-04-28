@@ -365,6 +365,22 @@ bash submission.sh report_card <student_roll_no> [options]
 
 Utilizing Python's data processing capabilities along with LaTeX for document generation, the script retrieves student performance data from the main CSV file and creates a visually appealing report card. It offers flexibility in specifying output file names and incorporating external grade data files for accurate grading. The report cards are organized and stored in the "Reports" directory, ensuring easy access and management. The command enhances the process of generating student report cards, providing a convenient and efficient solution for academic assessment.
 
+\section{Conditions for the Script to Work}
+
+Certain inherent assumptions are made in the functioning of the script:
+
+\begin{itemize}
+\item The script is designed to run on an Ubuntu operating system. While it may work on other operating systems, it has primarily been developed and tested on Ubuntu.
+\item The script relies on GNU Awk, Sed, and Python 3 being available and accessible on the system. Additionally, it requires certain Python libraries such as NumPy, Matplotlib, and SciPy to be installed and properly functioning.
+
+\item Proper setup and configuration of pdflatex is necessary for the generation of PDF files. The script assumes pdflatex is installed and operational.
+
+\item File names or paths should not contain spaces. While some commands may have built-in support for handling spaces in file names, others may rely on parsing strings based on spaces, leading to potential errors if spaces are present.
+
+\item It is advisable to not name the output file of command \texttt{bash submission.sh grade filename} with a ".csv" extension, as the \texttt{combine} command, whenever run afterwards without specifying the arguments will consider it as a CSV file and attempt to combine its third column with other CSV files. 
+
+\item Temporary files are created and removed during the execution of the commands. These temporary files are named arbitrarily, such as \texttt{temp1212.csv}. Therefore, it is advisable not to use filenames matching this pattern in the working directory. Similarly, the filename \texttt{tempPerf.png} should not be used for any image files to prevent conflicts.
+\end{itemize}
 
 \section{Error Handling}
 
