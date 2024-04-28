@@ -371,11 +371,14 @@ Certain inherent assumptions are made in the functioning of the script:
 
 \begin{itemize}
 \item The script is designed to run on an Ubuntu operating system. While it may work on other operating systems, it has primarily been developed and tested on Ubuntu.
+
 \item The script relies on GNU Awk, Sed, and Python 3 being available and accessible on the system. Additionally, it requires certain Python libraries such as NumPy, Matplotlib, and SciPy to be installed and properly functioning.
 
 \item Proper setup and configuration of pdflatex is necessary for the generation of PDF files. The script assumes pdflatex is installed and operational.
 
 \item File names or paths should not contain spaces. While some commands may have built-in support for handling spaces in file names, others may rely on parsing strings based on spaces, leading to potential errors if spaces are present.
+
+\item CSV files should not have random white-spaces, or empty lines at the end.
 
 \item It is advisable to not name the output file of command \texttt{bash submission.sh grade filename} with a ".csv" extension, as the \texttt{combine} command, whenever run afterwards without specifying the arguments will consider it as a CSV file and attempt to combine its third column with other CSV files. 
 
