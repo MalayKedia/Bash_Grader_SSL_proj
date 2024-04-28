@@ -4,6 +4,5 @@ Making fancy report card for student
 Change combine to conider main existing
 implement add -A
 
-
 Git ignore
 Percentile, rank

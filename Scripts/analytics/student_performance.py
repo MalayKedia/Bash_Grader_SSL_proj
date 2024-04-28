@@ -12,6 +12,11 @@ if "--close" in arguments:
     close = True
     del arguments[arguments.index("--close")]
 
+graph=False
+if "--graph" in arguments:
+    graph = True
+    del arguments[arguments.index("--graph")]
+
 if len(arguments) == 0:
     print("Invalid number of arguments")
     sys.exit(1)
@@ -60,6 +65,7 @@ def find_closest_name(approx_name, name_list):
     return closest_name
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 dataset = np.genfromtxt(filename, delimiter=',', dtype=str)
 name_list = dataset[1:, 1]
@@ -69,7 +75,7 @@ marks_header=dataset[0, 2:]
 if marks_header[-1] == "total":
     marks_header = marks_header[:-1]
     marks_list = np.delete(marks_list, -1, axis=1)
-
+    
 
 if search_by_name:
     input_name = " ".join(arguments)
@@ -114,3 +120,27 @@ else:
             print("Student was absent in "+exam)
         else: 
             print("Marks in "+exam+" is "+marks)
+            
+if graph:
+    max_marks=[]
+    avg_marks=[]
+    student_marks=marks_list[np.where(roll_list == roll_no)][0]
+    student_marks=[0 if i=='a' else float(i) for i in student_marks]
+    
+    for exam in marks_header:
+        exam_marks=marks_list[:, np.where(marks_header == exam)[0][0]]
+        exam_marks=[0 if i=='a' else float(i) for i in exam_marks]
+
+        max_marks.append(max(exam_marks))
+        avg_marks.append(np.mean(exam_marks))
+        
+    plt.plot(marks_header, student_marks, label=roll_no)
+    plt.plot(marks_header, max_marks, label='Max')
+    plt.plot(marks_header, avg_marks, label='Average')
+    plt.legend()
+    plt.grid(axis='y')
+    plt.xlabel('Exams')
+    plt.ylabel('Marks')
+    plt.ylim(bottom=min(0,np.min(exam_marks)))
+    plt.title('Performance of '+roll_no+' in Exams')
+    plt.show()

@@ -132,16 +132,17 @@ elif [ "$1" = 'closest_name' ]; then
     shift
     python3 Scripts/analytics/closest_name.py "$@"
 
-# If the first argument is 'print_marks'
+# If the first argument is 'student_performance'
 << COMMENT
-    To print the marks of a student from roll no.: Usage: bash submission.sh print_marks <student_roll_no>
-    To print the marks of a student from name:     Usage: bash submission.sh print_marks --name <student_name>
+    To print the marks of a student from roll no.: Usage: bash submission.sh student_performance <student_roll_no>
+    To print the marks of a student from name:     Usage: bash submission.sh student_performance --name <student_name>
 Options:
     --close: Specify to print the marks of the closest name/ roll_no to the given name
+    --graph: Specify to plot the marks of the student relative to the class
 COMMENT
-elif [ "$1" = 'print_marks' ]; then
+elif [ "$1" = 'student_performance' ]; then
     shift
-    python3 Scripts/analytics/print_marks.py "$@"
+    python3 Scripts/analytics/student_performance.py "$@"
 
 # If the first argument is 'calc_stats'
 << COMMENT

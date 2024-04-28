@@ -238,17 +238,17 @@ bash submission.sh closest_name <name>
 
 The command employs metric of levenshtein distance to find the string closest to the given name among the database, by returning the string from the database which had the lowest levenshtein distance from our input string. The implementation of levenshtein distance uses only python and no other libraries.
 
-\subsubsection{Print\_marks}
-The \texttt{print\_marks} command is a tool for accessing and printing the marks of students based on their roll numbers or names. It offers flexibility by allowing users to search for marks using either the student's roll number or name. Additionally, users can choose to print the marks of the closest name or roll number to the provided input, which can be beneficial for handling minor input discrepancies.\\
+\subsubsection{Student\_performance}
+The \texttt{student\_performance} command is a tool for accessing and printing the marks of students based on their roll numbers or names. It offers flexibility by allowing users to search for marks using either the student's roll number or name. Additionally, users can choose to print the marks of the closest name or roll number to the provided input, which can be beneficial for handling minor input discrepancies.\\
 \textbf{Usage:}
 \begin{itemize}
     \item To print the marks of a student from roll no.:
     \begin{lstlisting}[language=bash]
-    bash submission.sh print_marks <student_roll_no>
+    bash submission.sh student_performance <student_roll_no>
     \end{lstlisting}
     \item To print the marks of a student from name:
     \begin{lstlisting}[language=bash]
-    bash submission.sh print_marks --name <student_name>
+    bash submission.sh student_performance --name <student_name>
     \end{lstlisting}
 \end{itemize}
 
