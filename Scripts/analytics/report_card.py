@@ -146,7 +146,7 @@ latex_content+=r"""
 \end{figure}
 """
 
-if grade:
+if locals().get("grade"):
     latex_content+=r"""
     \section{Performance}
     \begin{center}
@@ -183,4 +183,4 @@ os.system("rm Reports/tempPerf.png")
 os.system("rm {}.log".format(output_file))
 os.system("rm {}.aux".format(output_file))
 
-print("Report card generated successfully: {}".format(output_file_name+".pdf"))
+print("Report card generated successfully: {}".format(output_file+".pdf"))

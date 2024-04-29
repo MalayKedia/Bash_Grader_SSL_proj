@@ -52,7 +52,7 @@ if [ $# -eq 1 ]; then
         fi
 
     # If the first argument is a hash value
-    elif [[ $1 =~ [0-9]\{1,16\} ]]; then
+    elif [[ $1 =~ [0-9]{1,16} ]]; then
         hash=$1
         checkout_by_hash $path_to_remote_repo $hash
     
