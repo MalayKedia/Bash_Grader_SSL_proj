@@ -1,0 +1,7 @@
+Implementing git diff, branch, merge.
+Implementing Git ignore
+Implementing git add -A
+
+Optimising combine to conider existing main.csv file
+
+Allowing tab to fill command names
